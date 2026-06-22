@@ -18,25 +18,18 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # channel: stable -> récupère la dernière version stable de Flutter,
-      # qui embarque un Dart >= 3.10.7 (requis par le pubspec du Client).
-      - name: Setup Flutter
+      # Version ÉPINGLÉE : 3.38.4 (celle d'origine du projet, cf. pubspec.lock).
+      # Elle embarque Dart 3.10.7 (requis par ^3.10.7) ET reste en AGP 8.
+      # On évite ainsi Flutter 3.44 (channel stable), qui force AGP 9 et casse
+      # le plugin Gradle de Flutter (erreur "generateLockfiles").
+      - name: Setup Flutter 3.38.4
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.38.4
           channel: stable
 
       - name: Flutter version
         run: flutter --version
-
-      # firebase_core 4.x exige minSdk 23. Le build.gradle.kts utilise
-      # flutter.minSdkVersion (souvent 21) -> on force 23 pour éviter l'échec.
-      - name: Force minSdk 23
-        run: |
-          GR=android/app/build.gradle.kts
-          if [ -f "$GR" ]; then
-            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/' "$GR"
-            echo "minSdk forcé à 23"
-          fi
 
       - name: Pub get
         run: flutter pub get
