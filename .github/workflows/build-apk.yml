@@ -18,8 +18,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # channel: stable -> récupère la dernière version stable de Flutter,
-      # qui embarque un Dart >= 3.10.7 (requis par le pubspec du Client).
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -28,15 +26,20 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      # firebase_core 4.x exige minSdk 23. Le build.gradle.kts utilise
-      # flutter.minSdkVersion (souvent 21) -> on force 23 pour éviter l'échec.
-      - name: Force minSdk 23
+      # Flutter (récent) traite le projet en mode AGP 9 : nouveau DSL + Kotlin
+      # intégré. Or ce projet est en AGP 8.11.1 (plugin kotlin-android, ancien
+      # DSL) -> conflit "generateLockFiles". On rétablit l'ancien comportement
+      # via le gradle.properties GLOBAL (~/.gradle), que Flutter ne réécrit PAS
+      # (contrairement à android/gradle.properties qu'il régénère au build).
+      - name: AGP 9 opt-out (global, survit à la réécriture Flutter)
         run: |
-          GR=android/app/build.gradle.kts
-          if [ -f "$GR" ]; then
-            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/' "$GR"
-            echo "minSdk forcé à 23"
-          fi
+          mkdir -p ~/.gradle
+          {
+            echo "android.newDsl=false"
+            echo "android.builtInKotlin=false"
+          } >> ~/.gradle/gradle.properties
+          echo "----- ~/.gradle/gradle.properties -----"
+          cat ~/.gradle/gradle.properties
 
       - name: Pub get
         run: flutter pub get
