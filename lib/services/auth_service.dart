@@ -36,15 +36,22 @@ class AuthService {
       final user = credential.user;
 
       if (user != null) {
-        // ✅ FIX : Mettre à jour lastActiveAt à chaque connexion
-        await _firestore.collection('users').doc(user.uid).set({
-          'lastActiveAt': FieldValue.serverTimestamp(),
-          'updatedAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        // Effets secondaires NON bloquants : si Firestore refuse (règles non
+        // publiées) ou si le réseau échoue, la CONNEXION reste un succès.
+        try {
+          await _firestore.collection('users').doc(user.uid).set({
+            'lastActiveAt': FieldValue.serverTimestamp(),
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
+        } catch (e) {
+          debugPrint('⚠️ [AuthService] lastActiveAt non écrit: $e');
+        }
 
-        // ✅ FIX : Initialiser les notifications pour ce user
-        // Force la réécriture du token si user différent du précédent
-        await _notificationService.initialize(user.uid);
+        try {
+          await _notificationService.initialize(user.uid);
+        } catch (e) {
+          debugPrint('⚠️ [AuthService] notif init: $e');
+        }
 
         debugPrint('✅ [AuthService] Connexion: ${user.uid}');
       }
@@ -134,10 +141,17 @@ class AuthService {
       final user = userCredential.user;
 
       if (user != null) {
-        await _createOrUpdateUserDocument(user);
+        try {
+          await _createOrUpdateUserDocument(user);
+        } catch (e) {
+          debugPrint('⚠️ [AuthService] doc user (Google) non écrit: $e');
+        }
 
-        // ✅ FIX : Initialiser les notifications après Google Sign In
-        await _notificationService.initialize(user.uid);
+        try {
+          await _notificationService.initialize(user.uid);
+        } catch (e) {
+          debugPrint('⚠️ [AuthService] notif init (Google): $e');
+        }
 
         debugPrint('✅ [AuthService] Google Sign In: ${user.uid}');
       }

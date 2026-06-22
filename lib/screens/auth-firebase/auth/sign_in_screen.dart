@@ -198,7 +198,9 @@ class _SignInScreenState extends State<SignInScreen> {
                   'assets/icons/google.svg',
                 ),
               ),
-              const SizedBox(height: defaultPadding),
+              SizedBox(
+                height: defaultPadding + MediaQuery.of(context).padding.bottom + 16,
+              ),
             ],
           ),
         ),
