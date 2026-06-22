@@ -18,10 +18,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # Version ÉPINGLÉE : 3.38.4 (celle d'origine du projet, cf. pubspec.lock).
-      # Elle embarque Dart 3.10.7 (requis par ^3.10.7) ET reste en AGP 8.
-      # On évite ainsi Flutter 3.44 (channel stable), qui force AGP 9 et casse
-      # le plugin Gradle de Flutter (erreur "generateLockfiles").
       - name: Setup Flutter 3.38.4
         uses: subosito/flutter-action@v2
         with:
@@ -30,6 +26,27 @@ jobs:
 
       - name: Flutter version
         run: flutter --version
+
+      # L'erreur "generateLockfiles" vient des fichiers Gradle RACINE du projet,
+      # désynchronisés du plugin Gradle de Flutter 3.38.4. On les régénère depuis
+      # un projet template tout neuf (même Flutter), puis on ré-injecte le plugin
+      # Firebase. On ne touche PAS à app/build.gradle.kts, AndroidManifest,
+      # MainActivity ni google-services.json -> package, Firebase et signature
+      # restent intacts.
+      - name: Régénérer la coquille Gradle racine (Flutter 3.38.4)
+        run: |
+          flutter create --platforms=android --org dj.velox /tmp/fresh >/dev/null
+          cp /tmp/fresh/android/settings.gradle.kts android/settings.gradle.kts
+          cp /tmp/fresh/android/build.gradle.kts android/build.gradle.kts
+          cp /tmp/fresh/android/gradle/wrapper/gradle-wrapper.properties \
+             android/gradle/wrapper/gradle-wrapper.properties
+          # Ré-injecter le plugin Firebase (google-services) dans le settings frais
+          sed -i '/id("com.android.application")/a\    id("com.google.gms.google-services") version "4.3.15" apply false' android/settings.gradle.kts
+          # S'assurer qu'AndroidX est bien activé
+          grep -q "android.useAndroidX=true" android/gradle.properties || \
+            echo "android.useAndroidX=true" >> android/gradle.properties
+          echo "----- settings.gradle.kts régénéré -----"
+          cat android/settings.gradle.kts
 
       - name: Pub get
         run: flutter pub get
