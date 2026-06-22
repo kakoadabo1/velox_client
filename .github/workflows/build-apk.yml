@@ -18,28 +18,18 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Setup Flutter
+      # Version ÉPINGLÉE : 3.38.4 (celle d'origine du projet, cf. pubspec.lock).
+      # Elle embarque Dart 3.10.7 (requis par ^3.10.7) ET reste en AGP 8.
+      # On évite ainsi Flutter 3.44 (channel stable), qui force AGP 9 et casse
+      # le plugin Gradle de Flutter (erreur "generateLockfiles").
+      - name: Setup Flutter 3.38.4
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: 3.38.4
           channel: stable
 
       - name: Flutter version
         run: flutter --version
-
-      # Flutter (récent) traite le projet en mode AGP 9 : nouveau DSL + Kotlin
-      # intégré. Or ce projet est en AGP 8.11.1 (plugin kotlin-android, ancien
-      # DSL) -> conflit "generateLockFiles". On rétablit l'ancien comportement
-      # via le gradle.properties GLOBAL (~/.gradle), que Flutter ne réécrit PAS
-      # (contrairement à android/gradle.properties qu'il régénère au build).
-      - name: AGP 9 opt-out (global, survit à la réécriture Flutter)
-        run: |
-          mkdir -p ~/.gradle
-          {
-            echo "android.newDsl=false"
-            echo "android.builtInKotlin=false"
-          } >> ~/.gradle/gradle.properties
-          echo "----- ~/.gradle/gradle.properties -----"
-          cat ~/.gradle/gradle.properties
 
       - name: Pub get
         run: flutter pub get
