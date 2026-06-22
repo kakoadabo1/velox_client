@@ -27,7 +27,9 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      # (1) Régénère la coquille Gradle racine (corrige "generateLockfiles").
+      # (1) Régénère la coquille Gradle racine (corrige "generateLockfiles")
+      #     + écrit un gradle.properties maîtrisé (mémoire + AndroidX) pour
+      #     éviter le "GC thrashing" et le crash AndroidX.
       - name: Régénérer la coquille Gradle racine (Flutter 3.38.4)
         run: |
           flutter create --platforms=android --org dj.velox /tmp/fresh >/dev/null
@@ -36,12 +38,18 @@ jobs:
           cp /tmp/fresh/android/gradle/wrapper/gradle-wrapper.properties \
              android/gradle/wrapper/gradle-wrapper.properties
           sed -i '/id("com.android.application")/a\    id("com.google.gms.google-services") version "4.3.15" apply false' android/settings.gradle.kts
-          grep -q "android.useAndroidX=true" android/gradle.properties || \
-            echo "android.useAndroidX=true" >> android/gradle.properties
+          {
+            echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=2g"
+            echo "android.useAndroidX=true"
+            echo "org.gradle.daemon=false"
+            echo "org.gradle.parallel=false"
+            echo "org.gradle.workers.max=2"
+          } > android/gradle.properties
+          echo "----- android/gradle.properties -----"
+          cat android/gradle.properties
 
-      # (2) Génère une clé + key.properties pour que la signature release marche
-      #     QUEL QUE SOIT le contenu de app/build.gradle.kts (fini le crash
-      #     "null cannot be cast to non-null type kotlin.String").
+      # (2) Génère une clé + key.properties : signature release toujours OK,
+      #     quel que soit le contenu de app/build.gradle.kts.
       - name: Générer la clé de signature
         run: |
           keytool -genkeypair -v \
@@ -55,8 +63,6 @@ jobs:
             echo "keyAlias=velox"
             echo "storeFile=/tmp/velox.jks"
           } > android/key.properties
-          echo "----- android/key.properties -----"
-          cat android/key.properties
 
       - name: Pub get
         run: flutter pub get
