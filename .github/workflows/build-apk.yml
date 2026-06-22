@@ -27,12 +27,7 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      # L'erreur "generateLockfiles" vient des fichiers Gradle RACINE du projet,
-      # désynchronisés du plugin Gradle de Flutter 3.38.4. On les régénère depuis
-      # un projet template tout neuf (même Flutter), puis on ré-injecte le plugin
-      # Firebase. On ne touche PAS à app/build.gradle.kts, AndroidManifest,
-      # MainActivity ni google-services.json -> package, Firebase et signature
-      # restent intacts.
+      # (1) Régénère la coquille Gradle racine (corrige "generateLockfiles").
       - name: Régénérer la coquille Gradle racine (Flutter 3.38.4)
         run: |
           flutter create --platforms=android --org dj.velox /tmp/fresh >/dev/null
@@ -40,13 +35,28 @@ jobs:
           cp /tmp/fresh/android/build.gradle.kts android/build.gradle.kts
           cp /tmp/fresh/android/gradle/wrapper/gradle-wrapper.properties \
              android/gradle/wrapper/gradle-wrapper.properties
-          # Ré-injecter le plugin Firebase (google-services) dans le settings frais
           sed -i '/id("com.android.application")/a\    id("com.google.gms.google-services") version "4.3.15" apply false' android/settings.gradle.kts
-          # S'assurer qu'AndroidX est bien activé
           grep -q "android.useAndroidX=true" android/gradle.properties || \
             echo "android.useAndroidX=true" >> android/gradle.properties
-          echo "----- settings.gradle.kts régénéré -----"
-          cat android/settings.gradle.kts
+
+      # (2) Génère une clé + key.properties pour que la signature release marche
+      #     QUEL QUE SOIT le contenu de app/build.gradle.kts (fini le crash
+      #     "null cannot be cast to non-null type kotlin.String").
+      - name: Générer la clé de signature
+        run: |
+          keytool -genkeypair -v \
+            -keystore /tmp/velox.jks \
+            -storepass velox123 -keypass velox123 \
+            -alias velox -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=VELOX, OU=Dev, O=Nomade, L=Djibouti, C=DJ"
+          {
+            echo "storePassword=velox123"
+            echo "keyPassword=velox123"
+            echo "keyAlias=velox"
+            echo "storeFile=/tmp/velox.jks"
+          } > android/key.properties
+          echo "----- android/key.properties -----"
+          cat android/key.properties
 
       - name: Pub get
         run: flutter pub get
