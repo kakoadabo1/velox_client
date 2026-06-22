@@ -27,9 +27,7 @@ jobs:
       - name: Flutter version
         run: flutter --version
 
-      # (1) Régénère la coquille Gradle racine (corrige "generateLockfiles")
-      #     + écrit un gradle.properties maîtrisé (mémoire + AndroidX) pour
-      #     éviter le "GC thrashing" et le crash AndroidX.
+      # (1) Coquille Gradle racine saine + gradle.properties maîtrisé.
       - name: Régénérer la coquille Gradle racine (Flutter 3.38.4)
         run: |
           flutter create --platforms=android --org dj.velox /tmp/fresh >/dev/null
@@ -45,11 +43,8 @@ jobs:
             echo "org.gradle.parallel=false"
             echo "org.gradle.workers.max=2"
           } > android/gradle.properties
-          echo "----- android/gradle.properties -----"
-          cat android/gradle.properties
 
-      # (2) Génère une clé + key.properties : signature release toujours OK,
-      #     quel que soit le contenu de app/build.gradle.kts.
+      # (2) Clé + key.properties : signature release toujours OK.
       - name: Générer la clé de signature
         run: |
           keytool -genkeypair -v \
@@ -63,6 +58,16 @@ jobs:
             echo "keyAlias=velox"
             echo "storeFile=/tmp/velox.jks"
           } > android/key.properties
+
+      # (3) Corrections code pour la compilation Linux (sensible à la casse) :
+      #   - secrets.dart est gitignoré -> généré depuis le template.
+      #   - 6 imports écrivent "HomeScreen" alors que le dossier réel est
+      #     "homeScreen" -> on aligne la casse sur le vrai dossier.
+      - name: Préparer le code pour la CI
+        run: |
+          [ -f lib/config/secrets.dart ] || cp lib/config/secrets.template.dart lib/config/secrets.dart
+          grep -rl "screens/HomeScreen/" lib | xargs -r sed -i 's#screens/HomeScreen/#screens/homeScreen/#g'
+          echo "secrets.dart prêt + casse HomeScreen normalisée."
 
       - name: Pub get
         run: flutter pub get
