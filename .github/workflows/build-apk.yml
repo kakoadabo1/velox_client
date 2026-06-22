@@ -18,10 +18,6 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      # Version ÉPINGLÉE : 3.38.4 (celle d'origine du projet, cf. pubspec.lock).
-      # Elle embarque Dart 3.10.7 (requis par ^3.10.7) ET reste en AGP 8.
-      # On évite ainsi Flutter 3.44 (channel stable), qui force AGP 9 et casse
-      # le plugin Gradle de Flutter (erreur "generateLockfiles").
       - name: Setup Flutter 3.38.4
         uses: subosito/flutter-action@v2
         with:
@@ -30,6 +26,48 @@ jobs:
 
       - name: Flutter version
         run: flutter --version
+
+      # (1) Coquille Gradle racine saine + gradle.properties maîtrisé.
+      - name: Régénérer la coquille Gradle racine (Flutter 3.38.4)
+        run: |
+          flutter create --platforms=android --org dj.velox /tmp/fresh >/dev/null
+          cp /tmp/fresh/android/settings.gradle.kts android/settings.gradle.kts
+          cp /tmp/fresh/android/build.gradle.kts android/build.gradle.kts
+          cp /tmp/fresh/android/gradle/wrapper/gradle-wrapper.properties \
+             android/gradle/wrapper/gradle-wrapper.properties
+          sed -i '/id("com.android.application")/a\    id("com.google.gms.google-services") version "4.3.15" apply false' android/settings.gradle.kts
+          {
+            echo "org.gradle.jvmargs=-Xmx6g -XX:MaxMetaspaceSize=2g"
+            echo "android.useAndroidX=true"
+            echo "org.gradle.daemon=false"
+            echo "org.gradle.parallel=false"
+            echo "org.gradle.workers.max=2"
+          } > android/gradle.properties
+
+      # (2) Clé + key.properties : signature release toujours OK.
+      - name: Générer la clé de signature
+        run: |
+          keytool -genkeypair -v \
+            -keystore /tmp/velox.jks \
+            -storepass velox123 -keypass velox123 \
+            -alias velox -keyalg RSA -keysize 2048 -validity 10000 \
+            -dname "CN=VELOX, OU=Dev, O=Nomade, L=Djibouti, C=DJ"
+          {
+            echo "storePassword=velox123"
+            echo "keyPassword=velox123"
+            echo "keyAlias=velox"
+            echo "storeFile=/tmp/velox.jks"
+          } > android/key.properties
+
+      # (3) Corrections code pour la compilation Linux (sensible à la casse) :
+      #   - secrets.dart est gitignoré -> généré depuis le template.
+      #   - 6 imports écrivent "HomeScreen" alors que le dossier réel est
+      #     "homeScreen" -> on aligne la casse sur le vrai dossier.
+      - name: Préparer le code pour la CI
+        run: |
+          [ -f lib/config/secrets.dart ] || cp lib/config/secrets.template.dart lib/config/secrets.dart
+          grep -rl "screens/HomeScreen/" lib | xargs -r sed -i 's#screens/HomeScreen/#screens/homeScreen/#g'
+          echo "secrets.dart prêt + casse HomeScreen normalisée."
 
       - name: Pub get
         run: flutter pub get
