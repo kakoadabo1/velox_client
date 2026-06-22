@@ -1,41 +1,34 @@
 {
   "project_info": {
-    "project_number": "91637120258",
-    "project_id": "nomade253-478a9",
-    "storage_bucket": "nomade253-478a9.firebasestorage.app"
+    "project_number": "23290944403",
+    "project_id": "velox-pro-d6030",
+    "storage_bucket": "velox-pro-d6030.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:91637120258:android:9f61aab4a97e42b159d61b",
+        "mobilesdk_app_id": "1:23290944403:android:f8a4a3c1722d87e4a9a666",
         "android_client_info": {
-          "package_name": "com.example.driver253"
+          "package_name": "dj.nomade.velox_pro"
         }
       },
       "oauth_client": [
         {
-          "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
+          "client_id": "23290944403-j2v0mg3pfofpa9c14f1ipkbfobp2tcb9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY"
+          "current_key": "AIzaSyAuWgVLKrP4KdC3rjwSUUdzdVWsQZarloU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
+              "client_id": "23290944403-j2v0mg3pfofpa9c14f1ipkbfobp2tcb9.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "91637120258-22cpn58lb04ca5aljpfr35hr8f792i1u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.nomade253"
-              }
             }
           ]
         }
@@ -43,151 +36,28 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:91637120258:android:eb181d00c591d6a359d61b",
-        "android_client_info": {
-          "package_name": "com.example.nomade_client"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "91637120258-22cpn58lb04ca5aljpfr35hr8f792i1u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.nomade253"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:91637120258:android:19bac6c24159447159d61b",
-        "android_client_info": {
-          "package_name": "com.example.nomade_livreur"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "91637120258-22cpn58lb04ca5aljpfr35hr8f792i1u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.nomade253"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:91637120258:android:d5e0e8a0a33199b459d61b",
-        "android_client_info": {
-          "package_name": "com.example.nomade_restaurant"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "91637120258-22cpn58lb04ca5aljpfr35hr8f792i1u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.nomade253"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:91637120258:android:be262e5c8dc73d9659d61b",
+        "mobilesdk_app_id": "1:23290944403:android:2786762ed63b5ac9a9a666",
         "android_client_info": {
           "package_name": "dj.velox.client"
         }
       },
       "oauth_client": [
         {
-          "client_id": "91637120258-0gb6pugra88e8bart8frsp77l863s98u.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "dj.velox.client",
-            "certificate_hash": "38abedc09746602e4fbf49dc00e501dae366371d"
-          }
-        },
-        {
-          "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
+          "client_id": "23290944403-j2v0mg3pfofpa9c14f1ipkbfobp2tcb9.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY"
+          "current_key": "AIzaSyAuWgVLKrP4KdC3rjwSUUdzdVWsQZarloU"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "91637120258-q1hp7u3c72lpd7rgoi82c7dr37ovs0nv.apps.googleusercontent.com",
+              "client_id": "23290944403-j2v0mg3pfofpa9c14f1ipkbfobp2tcb9.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "91637120258-22cpn58lb04ca5aljpfr35hr8f792i1u.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.nomade253"
-              }
             }
           ]
         }

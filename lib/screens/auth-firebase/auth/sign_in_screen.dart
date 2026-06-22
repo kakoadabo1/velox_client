@@ -73,20 +73,55 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: defaultPadding * 1.5),
+              // Logo circulaire avec halo vert (style app Partenaire)
+              Center(
+                child: Container(
+                  width: 132,
+                  height: 132,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black,
+                    border: Border.all(color: primaryColor, width: 2.5),
+                    boxShadow: [
+                      BoxShadow(
+                        color: primaryColor.withValues(alpha: 0.45),
+                        blurRadius: 28,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: Padding(
+                      padding: const EdgeInsets.all(14),
+                      child: Image.asset(
+                        'assets/images/logo-velox.png',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
               const SizedBox(height: defaultPadding),
               Center(
-                child: Image.asset(
-                  'assets/images/logo-velox.png',
-                  height: 96,
-                  fit: BoxFit.contain,
+                child: Text(
+                  "Bienvenue sur VELOX",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleLarge!
+                      .copyWith(fontWeight: FontWeight.w700),
                 ),
               ),
               const SizedBox(height: defaultPadding / 2),
-              const WelcomeText(
-                title: "Bienvenue sur VELOX",
-                text:
-                    "Connecte-toi avec ton e-mail ou ton téléphone pour commander.",
+              Center(
+                child: Text(
+                  "Connecte-toi avec ton e-mail ou ton téléphone pour commander.",
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
+              const SizedBox(height: defaultPadding),
               const SignInForm(),
               const SizedBox(height: defaultPadding),
               const KOrText(),
@@ -132,9 +167,11 @@ class _SignInScreenState extends State<SignInScreen> {
                 label: const Text("Se connecter avec Téléphone"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: secondaryColor,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                 ),
               ),

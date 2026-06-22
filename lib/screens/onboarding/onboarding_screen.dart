@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,11 +27,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     duration: const Duration(milliseconds: 1300),
   )..repeat(reverse: true);
 
+  // Flottement des emojis du slide 1 (effet "ça bouge")
+  late final AnimationController _float = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 2600),
+  )..repeat();
+
   @override
   void dispose() {
     _pageCtrl.dispose();
     _tl.dispose();
     _pulse.dispose();
+    _float.dispose();
     super.dispose();
   }
 
@@ -90,9 +98,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _duoTile(c, '🛵', 'FOOD', c.primary),
+              _duoTile(c, '🛵', 'FOOD', c.primary, 0),
               const SizedBox(width: 16),
-              _duoTile(c, '🚕', 'TAXI', const Color(0xFF9FB0FF)),
+              _duoTile(c, '🚕', 'TAXI', const Color(0xFF9FB0FF), math.pi),
             ],
           ),
           const SizedBox(height: 34),
@@ -120,7 +128,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
     );
   }
 
-  Widget _duoTile(AppColors c, String emo, String label, Color accent) {
+  Widget _duoTile(AppColors c, String emo, String label, Color accent, double phase) {
     return Container(
       width: 130,
       height: 160,
@@ -136,7 +144,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(emo, style: const TextStyle(fontSize: 50)),
+          AnimatedBuilder(
+            animation: _float,
+            builder: (_, child) {
+              final t = math.sin(_float.value * 2 * math.pi + phase);
+              return Transform.translate(
+                offset: Offset(0, t * 7),
+                child: Transform.rotate(angle: t * 0.10, child: child),
+              );
+            },
+            child: Text(emo, style: const TextStyle(fontSize: 50)),
+          ),
           const SizedBox(height: 10),
           Text(label,
               style: GoogleFonts.spaceGrotesk(

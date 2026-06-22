@@ -101,10 +101,16 @@ void main() {
           ]));
 
       await _guardInit('Firebase', () async {
-        if (Firebase.apps.isEmpty) {
-          await Firebase.initializeApp(
-            options: DefaultFirebaseOptions.currentPlatform,
-          );
+        try {
+          if (Firebase.apps.isEmpty) {
+            await Firebase.initializeApp(
+              options: DefaultFirebaseOptions.currentPlatform,
+            );
+          }
+        } on FirebaseException catch (e) {
+          // [core/duplicate-app] : l'app native [DEFAULT] existe déjà
+          // (initialisée depuis google-services.json) — normal sur Android.
+          if (e.code != 'duplicate-app') rethrow;
         }
       });
 
