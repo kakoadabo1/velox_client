@@ -63,7 +63,9 @@ class _SignInScreenState extends State<SignInScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: const SizedBox(),
-        title: const Text("Sign In"),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const SizedBox(),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -71,10 +73,19 @@ class _SignInScreenState extends State<SignInScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: defaultPadding),
+              Center(
+                child: Image.asset(
+                  'assets/images/logo-velox.png',
+                  height: 96,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: defaultPadding / 2),
               const WelcomeText(
-                title: "Welcome to",
+                title: "Bienvenue sur VELOX",
                 text:
-                "Enter your Phone number or Email \naddress for sign in. Enjoy your food :)",
+                    "Connecte-toi avec ton e-mail ou ton téléphone pour commander.",
               ),
               const SignInForm(),
               const SizedBox(height: defaultPadding),
@@ -124,27 +135,6 @@ class _SignInScreenState extends State<SignInScreen> {
                   minimumSize: const Size(double.infinity, 56),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-              ),
-              const SizedBox(height: defaultPadding),
-
-              // Facebook (non configuré - optionnel)
-              SocialButton(
-                press: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Facebook - À configurer plus tard'),
-                    ),
-                  );
-                },
-                text: "Connect with Facebook",
-                color: const Color(0xFF395998),
-                icon: SvgPicture.asset(
-                  'assets/icons/facebook.svg',
-                  colorFilter: const ColorFilter.mode(
-                    Color(0xFF395998),
-                    BlendMode.srcIn,
                   ),
                 ),
               ),

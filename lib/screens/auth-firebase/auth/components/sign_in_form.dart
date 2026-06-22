@@ -87,7 +87,10 @@ class _SignInFormState extends State<SignInForm> {
             validator: emailValidator.call,
             textInputAction: TextInputAction.next,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(hintText: "Email Address"),
+            decoration: const InputDecoration(
+              hintText: "Adresse e-mail",
+              prefixIcon: Icon(Icons.email_outlined),
+            ),
             enabled: !_isLoading,
           ),
           const SizedBox(height: defaultPadding),
@@ -101,6 +104,7 @@ class _SignInFormState extends State<SignInForm> {
             onFieldSubmitted: (_) => _signIn(),
             decoration: InputDecoration(
               hintText: tr('password'),
+              prefixIcon: const Icon(Icons.lock_outline),
               suffixIcon: GestureDetector(
                 onTap: () {
                   setState(() {

@@ -9,6 +9,7 @@ import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
+import 'components/djibouti_dishes.dart';
 
 class HomeScreenApp extends ConsumerStatefulWidget {
   const HomeScreenApp({super.key});
@@ -559,6 +560,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           _buildHeader(firstName, c),
           _buildTagline(c),
           _buildLoyaltyCard(c),
+          DjiboutiDishes(c: c),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 14),
             child: Row(

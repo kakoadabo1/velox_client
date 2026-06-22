@@ -49,21 +49,24 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // Projet UNIFIÉ : velox-pro-d6030 (app Android : dj.velox.client)
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCFU_SdG-q0Q3g8hyZ0uIc2kPq1jwKazdY',
-    appId: '1:91637120258:android:eb181d00c591d6a359d61b',
-    messagingSenderId: '91637120258',
-    projectId: 'nomade253-478a9',
-    storageBucket: 'nomade253-478a9.firebasestorage.app',
+    apiKey: 'AIzaSyAuWgVLKrP4KdC3rjwSUUdzdVWsQZarloU',
+    appId: '1:23290944403:android:2786762ed63b5ac9a9a666',
+    messagingSenderId: '23290944403',
+    projectId: 'velox-pro-d6030',
+    storageBucket: 'velox-pro-d6030.firebasestorage.app',
   );
 
+  // iOS : à reconfigurer via `flutterfire configure` quand tu enregistreras
+  // l'app iOS dans velox-pro-d6030. Pour l'instant, projet pointé sur velox-pro
+  // (l'app n'est pas compilée pour iOS, donc ce bloc n'est pas utilisé).
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyAar64MgVfbC2Ql4Y0sMDmIYRawn-yyWjI',
-    appId: '1:91637120258:ios:4626636d3ca3a96759d61b',
-    messagingSenderId: '91637120258',
-    projectId: 'nomade253-478a9',
-    storageBucket: 'nomade253-478a9.firebasestorage.app',
-    iosClientId: '91637120258-5q0fa6o0oapl6aema8ss0tj3vauona78.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAuWgVLKrP4KdC3rjwSUUdzdVWsQZarloU',
+    appId: '1:23290944403:android:2786762ed63b5ac9a9a666',
+    messagingSenderId: '23290944403',
+    projectId: 'velox-pro-d6030',
+    storageBucket: 'velox-pro-d6030.firebasestorage.app',
     iosBundleId: 'dj.velox.client',
   );
 }
