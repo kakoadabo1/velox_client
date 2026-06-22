@@ -138,7 +138,15 @@ class UserNotifier extends StateNotifier<UserState> {
 
     try {
       final uid = firebaseUser.uid;
-      final doc = await _firestore.collection('users').doc(uid).get();
+      // ⏱️ Timeout : empêche un blocage infini du démarrage si Firestore
+      // ne répond pas (database non prête, réseau, projet mal configuré).
+      // En cas de timeout -> TimeoutException attrapée plus bas -> fallback
+      // sur les données Firebase Auth + isLoading:false (l'app continue).
+      final doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get()
+          .timeout(const Duration(seconds: 8));
 
       if (!mounted) return;
 
