@@ -71,27 +71,51 @@ final FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 final FirebaseAnalyticsObserver analyticsObserver =
 FirebaseAnalyticsObserver(analytics: analytics);
 
+// ════════════════════════════════════════════════════════════════
+// DIAGNOSTIC DÉMARRAGE
+// Chaque init est isolé (try/catch + timeout) pour que runApp soit
+// TOUJOURS appelé. Toute erreur est affichée à l'écran au 1er frame.
+// ════════════════════════════════════════════════════════════════
+final List<String> bootDiagnostics = [];
+
+Future<void> _guardInit(String name, Future<void> Function() fn,
+    {Duration timeout = const Duration(seconds: 8)}) async {
+  try {
+    await fn().timeout(timeout);
+    debugPrint('✅ Init "$name" OK');
+  } catch (e) {
+    debugPrint('⚠️ Init "$name" KO: $e');
+    bootDiagnostics.add('$name → $e');
+  }
+}
+
 void main() {
   runZonedGuarded(
         () async {
       WidgetsFlutterBinding.ensureInitialized();
 
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
+      await _guardInit('Orientation', () =>
+          SystemChrome.setPreferredOrientations([
+            DeviceOrientation.portraitUp,
+            DeviceOrientation.portraitDown,
+          ]));
 
-      if (Firebase.apps.isEmpty) {
-        await Firebase.initializeApp(
-          options: DefaultFirebaseOptions.currentPlatform,
-        );
-      }
+      await _guardInit('Firebase', () async {
+        if (Firebase.apps.isEmpty) {
+          await Firebase.initializeApp(
+            options: DefaultFirebaseOptions.currentPlatform,
+          );
+        }
+      });
 
       // App Check désactivé temporairement — à réactiver avant publication store
-      // avec un debug token enregistré dans Firebase Console → App Check
 
-      FirebaseMessaging.onBackgroundMessage(
-          _firebaseMessagingBackgroundHandler);
+      try {
+        FirebaseMessaging.onBackgroundMessage(
+            _firebaseMessagingBackgroundHandler);
+      } catch (e) {
+        debugPrint('⚠️ onBackgroundMessage KO: $e');
+      }
 
       FlutterError.onError = (FlutterErrorDetails details) {
         if (kDebugMode) {
@@ -101,19 +125,14 @@ void main() {
         }
       };
 
-      // Ces services sont nécessaires avant runApp (Hive, cache, traductions)
-      // Mais ils sont rapides (<50ms)
-      // Désactiver le téléchargement des polices à l'exécution —
-      // les fichiers doivent être présents dans assets/google_fonts/
+      // Polices : fichiers présents dans assets/google_fonts/
       GoogleFonts.config.allowRuntimeFetching = false;
 
-      await Future.wait([
-        HiveService.init(),
-        LocalCache.init(),
-        AppTranslations.init(),
-        // Données de locale pour DateFormat(..., 'fr_FR') (écran historique)
-        initializeDateFormatting('fr_FR', null),
-      ]);
+      // Chaque init isolé : un échec/timeout ne bloque JAMAIS le démarrage.
+      await _guardInit('Hive', HiveService.init);
+      await _guardInit('LocalCache', LocalCache.init);
+      await _guardInit('Translations', AppTranslations.init);
+      await _guardInit('DateFmt', () => initializeDateFormatting('fr_FR', null));
 
       runApp(
         ProviderScope(
@@ -207,6 +226,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       _consumePendingNotification();
       _listenForActiveOrder();
       _listenForActiveRide();
+      _showBootDiagnostics();
     });
 
     _authSub = FirebaseAuth.instance.authStateChanges().listen((User? user) async {
@@ -235,6 +255,21 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     _activeRideSub?.close();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  // Affiche en rouge les inits qui ont échoué/timeout au démarrage.
+  void _showBootDiagnostics() {
+    if (bootDiagnostics.isEmpty) return;
+    final ctx = appNavigatorKey.currentContext;
+    if (ctx == null) return;
+    ScaffoldMessenger.of(ctx).showSnackBar(
+      SnackBar(
+        content: Text('⚠️ Démarrage: ${bootDiagnostics.join("  |  ")}'),
+        backgroundColor: Colors.red.shade700,
+        duration: const Duration(seconds: 12),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
