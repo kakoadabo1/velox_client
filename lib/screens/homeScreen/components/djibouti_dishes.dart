@@ -26,10 +26,8 @@ class _Dish {
 }
 
 class DjiboutiDishes extends StatelessWidget {
-  const DjiboutiDishes({super.key, required this.c, this.onOpenResto, this.onAdd});
+  const DjiboutiDishes({super.key, required this.c, this.onAdd});
   final AppColors c;
-  // Ouvre la fiche du restaurant seedé correspondant au plat.
-  final void Function(String restaurantId)? onOpenResto;
   // (nom, prix DJF, restaurant, restaurantId, imageUrl)
   final void Function(String name, int price, String restaurant,
       String restaurantId, String imageUrl)? onAdd;
@@ -85,7 +83,13 @@ class DjiboutiDishes extends StatelessWidget {
 
   Widget _card(_Dish d, int i) {
     return GestureDetector(
-      onTap: () => onOpenResto?.call(d.restaurantId),
+      onTap: () => onAdd?.call(
+        d.name,
+        int.tryParse(d.price.replaceAll(' ', '')) ?? 1000,
+        d.resto,
+        d.restaurantId,
+        _img(d.query, 700),
+      ),
       child: Container(
         width: 168,
         decoration: BoxDecoration(

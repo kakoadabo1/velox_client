@@ -11,8 +11,7 @@ import 'package:nomade_client/widgets/velox_stats_chart.dart';
 import 'package:nomade_client/dev/dev_simulator.dart';
 import 'package:nomade_client/models/menu_item.dart';
 import 'package:nomade_client/screens/food/addToOrder/add_to_order_screen.dart';
-import 'package:nomade_client/services/restaurant_service.dart';
-import 'package:nomade_client/screens/food/details/details_screen.dart';
+import 'package:nomade_client/models/restaurant.dart';
 import 'package:nomade_client/dev/dev_seed.dart'; // TEMP seed
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
@@ -621,34 +620,22 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           VeloxCategories(c: c, onOpen: _goToRestaurants),
           DjiboutiDishes(
             c: c,
-            onOpenResto: (restaurantId) async {
-              final resto =
-                  await RestaurantService().getRestaurantById(restaurantId);
-              if (!mounted) return;
-              if (resto == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Restaurant indisponible — lance le Seed.')),
-                );
-                return;
-              }
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => DetailsScreen(restaurant: resto)),
+            onAdd: (name, price, resto, restaurantId, imageUrl) {
+              // Restaurant + article construits LOCALEMENT : aucune dépendance
+              // Firestore, donc plus jamais de "Restaurant indisponible".
+              final now = DateTime.now();
+              final restaurant = Restaurant(
+                id: restaurantId,
+                name: resto,
+                address: 'Djibouti-ville',
+                description: '',
+                email: '',
+                phone: '',
+                imageUrl: imageUrl,
+                latitude: 11.5721,
+                longitude: 43.1456,
+                createdAt: now,
               );
-            },
-            onAdd: (name, price, resto, restaurantId, imageUrl) async {
-              final restaurant =
-                  await RestaurantService().getRestaurantById(restaurantId);
-              if (!mounted) return;
-              if (restaurant == null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Restaurant indisponible — lance le Seed.')),
-                );
-                return;
-              }
               final menuItem = MenuItem(
                 id: 'demo-$name',
                 restaurantId: restaurantId,
@@ -657,7 +644,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
                 price: price.toDouble(),
                 imageUrl: imageUrl,
                 category: 'Plats',
-                createdAt: DateTime.now(),
+                createdAt: now,
               );
               Navigator.push(
                 context,
