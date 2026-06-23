@@ -36,8 +36,8 @@ class DjiboutiDishes extends StatelessWidget {
 
   static const _dishes = <_Dish>[
     _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza', 'seed-pizzapalace'),
-    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food', 'seed-ayan'),
-    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich', 'seed-bunna'),
+    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food', 'seed-chezayan'),
+    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich', 'seed-bunnacorner'),
     _Dish('Burrito Bœuf', 'Mexico Djib', '1 500', 4.5, 'burrito', 'seed-tadjoura'),
     _Dish('Skoudehkaris', 'Saveurs d\'Afar', '1 600', 4.9, 'rice,meat', 'seed-afar'),
     _Dish('Jus de mangue', 'Fruity', '400', 4.6, 'mango,juice', 'seed-mandeb'),
