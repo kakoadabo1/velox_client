@@ -9,6 +9,7 @@ import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/widgets/velox_stats_chart.dart';
 import 'package:nomade_client/dev/dev_simulator.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:nomade_client/models/menu_item.dart';
 import 'package:nomade_client/screens/food/addToOrder/add_to_order_screen.dart';
 import 'package:nomade_client/models/restaurant.dart';
@@ -28,6 +29,7 @@ class HomeScreenApp extends ConsumerStatefulWidget {
 class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+  bool _locationOff = false; // localisation coupée -> on affiche le bandeau
 
   @override
   void initState() {
@@ -36,6 +38,36 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       DemoSimulator.instance.ensureStarted();
     });
+    _checkLocation();
+  }
+
+  /// Vérifie si la localisation est active (service + permission).
+  Future<void> _checkLocation() async {
+    try {
+      final service = await Geolocator.isLocationServiceEnabled();
+      final perm = await Geolocator.checkPermission();
+      final off = !service ||
+          perm == LocationPermission.denied ||
+          perm == LocationPermission.deniedForever;
+      if (mounted) setState(() => _locationOff = off);
+    } catch (_) {}
+  }
+
+  /// Demande l'activation / la permission de localisation.
+  Future<void> _requestLocation() async {
+    try {
+      var perm = await Geolocator.checkPermission();
+      if (perm == LocationPermission.denied) {
+        perm = await Geolocator.requestPermission();
+      }
+      final service = await Geolocator.isLocationServiceEnabled();
+      if (!service) {
+        await Geolocator.openLocationSettings();
+      } else if (perm == LocationPermission.deniedForever) {
+        await Geolocator.openAppSettings();
+      }
+    } catch (_) {}
+    await _checkLocation();
   }
 
   @override
@@ -615,6 +647,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           _buildHeader(firstName, c),
           _buildTagline(c),
           _buildSearchBar(c),
+          if (_locationOff) _buildLocationBanner(c),
           VeloxPromoBanner(c: c, onTap: _goToRestaurants),
           _buildLoyaltyCard(c),
           VeloxCategories(c: c, onOpen: _goToRestaurants),
@@ -711,14 +744,78 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
   }
 
   // ── BOTTOM NAV ────────────────────────────────────────────────────────────
+  // Bandeau "Active ta localisation" (affiché si le GPS est coupé).
+  Widget _buildLocationBanner(AppColors c) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 8, 20, 4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF5B800),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Active ta localisation',
+                  style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 4),
+                const Text(
+                  'Pour une prise en charge sans confusion et un suivi precis.',
+                  style: TextStyle(color: Colors.black87, fontSize: 13, height: 1.3),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: _requestLocation,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 9),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Text(
+                      'Partager la position',
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.warning_amber_rounded,
+              color: Colors.white, size: 58),
+        ],
+      ),
+    );
+  }
+
   Widget _buildBottomNav(AppColors c) {
     return Container(
-      height: 72,
+      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+      height: 66,
       decoration: BoxDecoration(
-        color: c.surfaceLow,
-        border: Border(
-          top: BorderSide(color: c.outlineVariant.withValues(alpha: 0.15)),
-        ),
+        color: c.surface,
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: c.outlineVariant.withValues(alpha: 0.12)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.18),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: Row(
         children: [

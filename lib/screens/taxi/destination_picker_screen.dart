@@ -491,7 +491,8 @@ class _DestinationPickerScreenState extends State<DestinationPickerScreen> {
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 40),
+              padding: EdgeInsets.fromLTRB(
+                  24, 28, 24, 24 + MediaQuery.of(context).padding.bottom),
               decoration: const BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
