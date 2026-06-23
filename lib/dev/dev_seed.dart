@@ -1,0 +1,131 @@
+// ════════════════════════════════════════════════════════════════════════
+//  VELOX — Seeder de DÉMONSTRATION (à exécuter UNE fois, puis retirer)
+//  À placer dans : lib/dev/dev_seed.dart
+//
+//  Crée 4 restaurants + leurs plats dans Firestore (collections
+//  `restaurants` et `menuItems`). Idempotent : IDs fixes -> relancer
+//  écrase au lieu de dupliquer.
+//
+//  ⚠️ Nécessite des règles Firestore autorisant TEMPORAIREMENT l'écriture
+//  sur `restaurants` et `menuItems` (voir instructions). À reverrouiller
+//  après le seed.
+// ════════════════════════════════════════════════════════════════════════
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+Future<String> runVeloxSeed() async {
+  final db = FirebaseFirestore.instance;
+  final ts = FieldValue.serverTimestamp();
+
+  Future<void> resto(String id, Map<String, dynamic> data) {
+    return db.collection('restaurants').doc(id).set({
+      ...data,
+      'isActive': true,
+      'isOpen': true,
+      'totalRevenue': 0.0,
+      'createdAt': ts,
+      'updatedAt': ts,
+    });
+  }
+
+  Future<void> item(String id, String restaurantId, String name,
+      String desc, double price, String category, String img) {
+    return db.collection('menuItems').doc(id).set({
+      'restaurantId': restaurantId,
+      'name': name,
+      'description': desc,
+      'price': price,
+      'imageUrl': img,
+      'category': category,
+      'isAvailable': true,
+      'preparationTime': 20,
+      'discountPercentage': 0,
+      'optionGroups': <Map<String, dynamic>>[],
+      'createdAt': ts,
+      'updatedAt': ts,
+    });
+  }
+
+  String img(String q, int lock) => 'https://loremflickr.com/600/400/$q?lock=$lock';
+
+  // ───────── 1. Pizza Palace ─────────
+  await resto('seed-pizzapalace', {
+    'name': 'Pizza Palace',
+    'address': 'Avenue 13, Djibouti-ville',
+    'description': 'Pizzas au feu de bois, pâtes et plats italiens.',
+    'email': 'contact@pizzapalace.dj',
+    'phone': '+25377100001',
+    'imageUrl': img('pizza,restaurant', 701),
+    'latitude': 11.5721, 'longitude': 43.1456,
+    'rating': 4.6, 'totalOrders': 120,
+  });
+  await item('seed-pp-1', 'seed-pizzapalace', 'Pizza Margherita',
+      'Tomate, mozzarella, basilic frais', 1800, 'Pizzas', img('pizza,margherita', 711));
+  await item('seed-pp-2', 'seed-pizzapalace', 'Pizza Reine',
+      'Jambon, champignons, mozzarella', 2000, 'Pizzas', img('pizza,ham', 712));
+  await item('seed-pp-3', 'seed-pizzapalace', 'Pizza 4 Fromages',
+      'Mozzarella, chèvre, bleu, parmesan', 2200, 'Pizzas', img('pizza,cheese', 713));
+  await item('seed-pp-4', 'seed-pizzapalace', 'Tiramisu',
+      'Dessert italien au café', 800, 'Desserts', img('tiramisu,dessert', 714));
+
+  // ───────── 2. Chez Ayan ─────────
+  await resto('seed-chezayan', {
+    'name': 'Chez Ayan',
+    'address': 'Quartier 7, Djibouti-ville',
+    'description': 'Burgers gourmands et grillades maison.',
+    'email': 'contact@chezayan.dj',
+    'phone': '+25377100002',
+    'imageUrl': img('burger,restaurant', 702),
+    'latitude': 11.5890, 'longitude': 43.1480,
+    'rating': 4.7, 'totalOrders': 200,
+  });
+  await item('seed-ca-1', 'seed-chezayan', 'Burger Velox',
+      'Bœuf, cheddar, sauce maison', 1100, 'Burgers', img('burger', 721));
+  await item('seed-ca-2', 'seed-chezayan', 'Double Bœuf',
+      'Deux steaks, double fromage', 1700, 'Burgers', img('burger,double', 722));
+  await item('seed-ca-3', 'seed-chezayan', 'Poulet Croustillant',
+      'Filet de poulet pané, salade', 1300, 'Burgers', img('chicken,burger', 723));
+  await item('seed-ca-4', 'seed-chezayan', 'Frites maison',
+      'Frites fraîches et croustillantes', 500, 'Accompagnements', img('fries', 724));
+
+  // ───────── 3. Bunna Corner ─────────
+  await resto('seed-bunnacorner', {
+    'name': 'Bunna Corner',
+    'address': 'Place Menelik, Djibouti-ville',
+    'description': 'Café de spécialité, pâtisseries et boissons fraîches.',
+    'email': 'contact@bunnacorner.dj',
+    'phone': '+25377100003',
+    'imageUrl': img('coffee,cafe', 703),
+    'latitude': 11.5950, 'longitude': 43.1400,
+    'rating': 4.9, 'totalOrders': 90,
+  });
+  await item('seed-bc-1', 'seed-bunnacorner', 'Café + Viennoiserie',
+      'Café filtre et croissant beurre', 900, 'Café', img('coffee,croissant', 731));
+  await item('seed-bc-2', 'seed-bunnacorner', 'Cappuccino',
+      'Espresso et mousse de lait', 600, 'Café', img('cappuccino', 732));
+  await item('seed-bc-3', 'seed-bunnacorner', 'Cheesecake',
+      'Part de cheesecake maison', 1000, 'Desserts', img('cheesecake', 733));
+  await item('seed-bc-4', 'seed-bunnacorner', 'Jus de mangue',
+      'Mangue fraîche pressée', 400, 'Boissons', img('mango,juice', 734));
+
+  // ───────── 4. Saveurs d'Afar ─────────
+  await resto('seed-afar', {
+    'name': "Saveurs d'Afar",
+    'address': 'Quartier 4, Djibouti-ville',
+    'description': 'Cuisine traditionnelle djiboutienne.',
+    'email': 'contact@saveursafar.dj',
+    'phone': '+25377100004',
+    'imageUrl': img('rice,food', 704),
+    'latitude': 11.5800, 'longitude': 43.1500,
+    'rating': 4.8, 'totalOrders': 150,
+  });
+  await item('seed-af-1', 'seed-afar', 'Skoudehkaris',
+      'Riz épicé au mouton, plat traditionnel', 1600, 'Plats', img('rice,meat', 741));
+  await item('seed-af-2', 'seed-afar', 'Riz au poisson',
+      'Riz parfumé et poisson grillé', 1700, 'Plats', img('rice,fish', 742));
+  await item('seed-af-3', 'seed-afar', 'Fah-fah',
+      'Soupe de viande épicée', 1400, 'Plats', img('soup,meat', 743));
+  await item('seed-af-4', 'seed-afar', 'Sambousa',
+      'Beignets croustillants à la viande', 600, 'Entrées', img('samosa', 744));
+
+  return '✅ 4 restaurants + 16 plats créés dans Firestore';
+}

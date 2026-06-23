@@ -273,7 +273,7 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
               ),
             ],
           ),
-          // SYSTEM_LINK chip — top right
+          // Badge "En ligne" — en haut à droite
           Positioned(
             top: 16,
             right: 16,
@@ -286,7 +286,7 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
                   Icon(Icons.satellite_alt, color: _c.primary, size: 12),
                   const SizedBox(width: 6),
                   Text(
-                    'SYSTEM_LINK: ACTIVE',
+                    'EN LIGNE',
                     style: GoogleFonts.spaceGrotesk(
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -310,7 +310,7 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('CURRENT_GPS', style: _label()),
+                  Text('POSITION ACTUELLE', style: _label()),
                   const SizedBox(height: 2),
                   Text(
                     widget.pickup.name.toUpperCase(),
@@ -346,7 +346,7 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
             children: [
               Text(tr('ride_details').toUpperCase(), style: _label()),
               Text(
-                'v1.0_ID',
+                'Course',
                 style: GoogleFonts.spaceGrotesk(
                     fontSize: 10, color: _c.primary, letterSpacing: 1),
               ),

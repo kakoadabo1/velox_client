@@ -190,7 +190,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       title: tr('about_app'),
                       subtitle: '${tr('version')} 1.0.0',
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () {},
+                      onTap: () => showAboutDialog(
+                        context: context,
+                        applicationName: 'VELOX',
+                        applicationVersion: '1.0.0',
+                        applicationLegalese: '© 2026 VELOX — Djibouti',
+                        children: const [
+                          SizedBox(height: 12),
+                          Text(
+                            'Livraison de repas et taxi VTC à Djibouti-ville. '
+                            'Tes courses et tes trajets, en un éclair.',
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

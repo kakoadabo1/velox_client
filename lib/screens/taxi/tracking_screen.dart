@@ -8,7 +8,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:nomade_client/models/ride.dart';
 import 'package:nomade_client/providers/all_providers.dart';
 import 'package:nomade_client/theme/app_colors.dart';
-import 'package:nomade_client/widgets/velox_innovations.dart';
 import 'ride_completion_screen.dart';
 
 /// Écran de suivi en temps réel — design Kinetic Monolith
@@ -42,44 +41,44 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
     switch (status) {
       case RideStatus.requested:
         return {
-          'label': 'SCAN_RÉSEAU',
-          'text':  'Recherche d\'un commandant de bord...',
+          'label': 'RECHERCHE',
+          'text':  'Recherche d\'un chauffeur...',
           'showTimer': true,
         };
       case RideStatus.accepted:
         return {
-          'label': 'COMMANDANT_ASSIGNÉ',
+          'label': 'CHAUFFEUR TROUVÉ',
           'text':  'Chauffeur en route vers vous',
           'showTimer': false,
         };
       case RideStatus.arriving:
         return {
-          'label': 'APPROCHE_IMMINENTE',
+          'label': 'EN APPROCHE',
           'text':  'Votre chauffeur approche !',
           'showTimer': false,
         };
       case RideStatus.arrived:
         return {
-          'label': 'ARRIVÉE_CONFIRMÉE',
+          'label': 'CHAUFFEUR ARRIVÉ',
           'text':  'Votre chauffeur est arrivé !',
           'showTimer': false,
         };
       case RideStatus.started:
         return {
-          'label': 'EN_TRANSIT',
+          'label': 'EN ROUTE',
           'text':  'En route vers la destination',
           'showTimer': true,
         };
       case RideStatus.completed:
         return {
-          'label': 'MISSION_ACCOMPLIE',
+          'label': 'TERMINÉE',
           'text':  'Course terminée',
           'showTimer': false,
         };
       case RideStatus.cancelled:
       case RideStatus.noDriverAvailable:
         return {
-          'label': 'COURSE_ANNULÉE',
+          'label': 'ANNULÉE',
           'text':  'Course annulée',
           'showTimer': false,
         };
@@ -181,7 +180,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             builder: (_) => AlertDialog(
               backgroundColor: c.surfaceLow,
               title: Text(
-                'AUCUN COMMANDANT',
+                'AUCUN CHAUFFEUR',
                 style: GoogleFonts.spaceGrotesk(
                     color: c.onSurface, fontWeight: FontWeight.w800),
               ),
@@ -339,7 +338,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
       child: Row(
         children: [
           Text(
-            'KINETIC_DRIVE',
+            'SUIVI DE COURSE',
             style: GoogleFonts.spaceGrotesk(
               fontSize: 20,
               fontWeight: FontWeight.w900,
@@ -535,7 +534,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Commandant de bord',
+                      'Chauffeur',
                       style: GoogleFonts.spaceGrotesk(
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -580,23 +579,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
               ),
             ],
           ),
-
-          // ── Suivi VELOX : radar pendant la recherche, timeline ensuite ──
-          const SizedBox(height: 18),
-          if (!ride.hasDriver)
-            Center(
-              child: SearchRadar(
-                c: _c,
-                size: 120,
-                label: 'Recherche d\'un chauffeur…',
-              ),
-            )
-          else
-            VeloxTimeline(
-              c: _c,
-              steps: VeloxSteps.taxi,
-              activeIndex: VeloxSteps.taxiIndex(ride.status.name),
-            ),
 
           // Phone + Call button (shown when driver assigned)
           if (ride.hasDriver) ...[
@@ -664,22 +646,30 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             children: [
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: _c.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                color: _c.primary.withValues(alpha: 0.1),
                 child: Text(
-                  ride.hasDriver
-                      ? VeloxSteps
-                          .taxi[VeloxSteps.taxiIndex(ride.status.name)].label
-                          .toUpperCase()
-                      : 'RECHERCHE…',
+                  'EN COURS',
                   style: GoogleFonts.spaceGrotesk(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
                     color: _c.primary,
-                    letterSpacing: 1.2,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                color: _c.surfaceTop,
+                child: Text(
+                  'EN_ROUTE',
+                  style: GoogleFonts.spaceGrotesk(
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    color: _c.onSurfaceVariant,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ),

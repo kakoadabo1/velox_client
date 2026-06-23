@@ -7,9 +7,13 @@ import 'package:nomade_client/screens/taxi/taxi_home_screen.dart';
 import 'package:nomade_client/screens/food/home_food/home_screen_food.dart';
 import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
+import 'package:nomade_client/widgets/velox_stats_chart.dart';
+import 'package:nomade_client/dev/dev_simulator.dart';
+import 'package:nomade_client/dev/dev_seed.dart'; // TEMP seed
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
 import 'components/djibouti_dishes.dart';
+import 'components/home_sections.dart';
 
 class HomeScreenApp extends ConsumerStatefulWidget {
   const HomeScreenApp({super.key});
@@ -21,6 +25,15 @@ class HomeScreenApp extends ConsumerStatefulWidget {
 class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
   int _selectedIndex = 0;
   final PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    // Mode démo : fait défiler automatiquement courses & commandes.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      DemoSimulator.instance.ensureStarted();
+    });
+  }
 
   @override
   void dispose() {
@@ -59,27 +72,29 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
 
   void _onItemTapped(int index) {
     if (!mounted) return;
-    if (index == 1) {
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => const ProfileScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-              SlideTransition(
-                position: Tween(begin: const Offset(0, 1), end: Offset.zero)
-                    .chain(CurveTween(curve: Curves.easeInOut))
-                    .animate(animation),
-                child: child,
-              ),
-        ),
-      );
-    } else {
-      setState(() => _selectedIndex = index);
-      if (_pageController.hasClients) {
-        _pageController.animateToPage(index,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut);
-      }
+    switch (index) {
+      case 1: // Commandes
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
+        );
+        break;
+      case 2: // Taxi
+        _goToTaxi();
+        break;
+      case 3: // Profil
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProfileScreen()),
+        );
+        break;
+      default: // Accueil
+        setState(() => _selectedIndex = 0);
+        if (_pageController.hasClients) {
+          _pageController.animateToPage(0,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut);
+        }
     }
   }
 
@@ -346,6 +361,46 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
     );
   }
 
+  // ── RECHERCHE ─────────────────────────────────────────────────────────────
+  Widget _buildSearchBar(AppColors c) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 0),
+      child: GestureDetector(
+        onTap: _goToRestaurants,
+        child: Container(
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          decoration: BoxDecoration(
+            color: c.surfaceHigh,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: c.outlineVariant.withValues(alpha: 0.4)),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.search_rounded, color: c.onSurfaceVariant, size: 22),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  'Rechercher un plat, un resto…',
+                  style: TextStyle(color: c.onSurfaceVariant, fontSize: 14),
+                ),
+              ),
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: c.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(Icons.tune_rounded, color: c.onPrimary, size: 18),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   // ── STATISTIQUES ──────────────────────────────────────────────────────────
   Widget _buildStats(AppColors c) {
     final statsAsync = ref.watch(orderStatsProvider);
@@ -368,17 +423,14 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
             ),
           ),
           const SizedBox(height: 16),
-          Row(
-            children: [
-              _buildStatItem('12', tr('rides').toUpperCase(), c),
-              _buildVerticalDivider(c),
-              _buildStatItem(isLoading ? '—' : '$totalOrders', tr('orders').toUpperCase(), c),
-              _buildVerticalDivider(c),
-              _buildStatItem(
-                isLoading ? '—' : _formatNumber(totalSpent),
-                '${tr('expenses').toUpperCase()}\n(FDJ)',
-                c,
-              ),
+          VeloxStatsChart(
+            c: c,
+            bars: [
+              StatBar(tr('rides'), 12, '12'),
+              StatBar(tr('orders'), totalOrders.toDouble(),
+                  isLoading ? '—' : '$totalOrders'),
+              StatBar('${tr('expenses')} (FDJ)', totalSpent,
+                  isLoading ? '—' : _formatNumber(totalSpent)),
             ],
           ),
         ],
@@ -559,8 +611,12 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
         children: [
           _buildHeader(firstName, c),
           _buildTagline(c),
+          _buildSearchBar(c),
+          VeloxPromoBanner(c: c, onTap: _goToRestaurants),
           _buildLoyaltyCard(c),
+          VeloxCategories(c: c, onOpen: _goToRestaurants),
           DjiboutiDishes(c: c),
+          VeloxRestaurantCarousel(c: c, onOpen: _goToRestaurants),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 14),
             child: Row(
@@ -627,8 +683,10 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
       ),
       child: Row(
         children: [
-          _buildNavItem(0, Icons.home_rounded, tr('home_food'), c),
-          _buildNavItem(1, Icons.person_rounded, tr('profile'), c),
+          _buildNavItem(0, Icons.home_rounded, 'Accueil', c),
+          _buildNavItem(1, Icons.receipt_long_rounded, 'Commandes', c),
+          _buildNavItem(2, Icons.local_taxi_rounded, 'Taxi', c),
+          _buildNavItem(3, Icons.person_rounded, 'Profil', c),
         ],
       ),
     );
@@ -645,18 +703,26 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              width: 48,
-              height: 48,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
               decoration: isActive
                   ? BoxDecoration(
-                      color: c.primary,
-                      shape: BoxShape.circle,
+                      color: c.primary.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(14),
                     )
                   : null,
               child: Icon(
                 icon,
-                color: isActive ? c.onPrimary : c.onSurfaceVariant,
-                size: 24,
+                color: isActive ? c.primary : c.onSurfaceVariant,
+                size: 23,
+              ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              label,
+              style: TextStyle(
+                color: isActive ? c.primary : c.onSurfaceVariant,
+                fontSize: 11,
+                fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
           ],
@@ -738,6 +804,16 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
             const ProfileScreen(),
           ],
         ),
+      ),
+      // ⚠️ TEMP — bouton de seed (à retirer après avoir rempli Firestore)
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          final msg = await runVeloxSeed();
+          if (!context.mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+        },
+        icon: const Icon(Icons.cloud_upload),
+        label: const Text('Seed'),
       ),
       bottomNavigationBar: SafeArea(
         child: _buildBottomNav(c),

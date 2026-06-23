@@ -456,20 +456,23 @@ class _DestinationPickerScreenState extends State<DestinationPickerScreen> {
                               ),
                             ),
                             title: Text(
-                              place.name,
+                              place.name.split(',').first.trim(),
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
+                                color: Color(0xFF1A1A1A),
                               ),
-                              maxLines: 2,
+                              maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             subtitle: Text(
-                              '${place.latitude.toStringAsFixed(4)}, ${place.longitude.toStringAsFixed(4)}',
+                              place.name,
                               style: TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey.shade600,
                               ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                             onTap: () => _selectSearchResult(place),
                             contentPadding: EdgeInsets.zero,
