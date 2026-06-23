@@ -305,7 +305,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
                     border: Border.all(color: _c.primary.withValues(alpha: 0.6)),
                   ),
                   child: Text(
-                    'AVAILABLE_UNIT_01',
+                    'DISPONIBLE',
                     style: TextStyle(
                       color: _c.primary,
                       fontSize: 10,
@@ -352,7 +352,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'BASE COST',
+                  'PRIX',
                   style: TextStyle(
                     color: _c.onSurfaceVariant,
                     fontSize: 10,
@@ -448,7 +448,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
                     border: Border.all(color: _c.primary.withValues(alpha: 0.5)),
                   ),
                   child: Text(
-                    'REQUIRED',
+                    'OBLIGATOIRE',
                     style: TextStyle(
                       color: _c.primary,
                       fontSize: 9,
@@ -683,7 +683,8 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
   Widget _buildAddToCartButton() {
     return Container(
       color: _c.bg,
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+      padding: EdgeInsets.fromLTRB(
+          16, 12, 16, 16 + MediaQuery.of(context).padding.bottom),
       child: GestureDetector(
         onTap: _proceedAddToCart,
         child: Container(
@@ -756,7 +757,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
                     ...List.generate(
                         _optionGroups.length, _buildGroupSection)
                   else ...[
-                    _buildSectionHeader('CHOIX DES EXTRAS', required: true),
+                    _buildSectionHeader('SUPPLÉMENTS', required: true),
                     ..._extras.map(_buildExtraItem),
                     _buildSectionHeader('CHOIX DES SAUCES'),
                     _buildSauceGrid(),

@@ -620,7 +620,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           VeloxCategories(c: c, onOpen: _goToRestaurants),
           DjiboutiDishes(
             c: c,
-            onAdd: (name, price, resto, restaurantId, imageUrl) {
+            onAdd: (name, price, resto, restaurantId, imageUrl, description) {
               // Restaurant + article construits LOCALEMENT : aucune dépendance
               // Firestore, donc plus jamais de "Restaurant indisponible".
               final now = DateTime.now();
@@ -640,7 +640,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
                 id: 'demo-$name',
                 restaurantId: restaurantId,
                 name: name,
-                description: 'Plat populaire à Djibouti',
+                description: description,
                 price: price.toDouble(),
                 imageUrl: imageUrl,
                 category: 'Plats',

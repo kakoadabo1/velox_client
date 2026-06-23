@@ -19,10 +19,10 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 
 class _Dish {
-  final String name, resto, price, query, restaurantId;
+  final String name, resto, price, query, restaurantId, desc;
   final double rating;
   const _Dish(this.name, this.resto, this.price, this.rating, this.query,
-      this.restaurantId);
+      this.restaurantId, this.desc);
 }
 
 class DjiboutiDishes extends StatelessWidget {
@@ -30,15 +30,15 @@ class DjiboutiDishes extends StatelessWidget {
   final AppColors c;
   // (nom, prix DJF, restaurant, restaurantId, imageUrl)
   final void Function(String name, int price, String restaurant,
-      String restaurantId, String imageUrl)? onAdd;
+      String restaurantId, String imageUrl, String description)? onAdd;
 
   static const _dishes = <_Dish>[
-    _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza', 'seed-pizzapalace'),
-    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food', 'seed-chezayan'),
-    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich', 'seed-bunnacorner'),
-    _Dish('Burrito Bœuf', 'Mexico Djib', '1 500', 4.5, 'burrito', 'seed-tadjoura'),
-    _Dish('Skoudehkaris', 'Saveurs d\'Afar', '1 600', 4.9, 'rice,meat', 'seed-afar'),
-    _Dish('Jus de mangue', 'Fruity', '400', 4.6, 'mango,juice', 'seed-mandeb'),
+    _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza', 'seed-pizzapalace', 'Tomate, mozzarella et basilic frais'),
+    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food', 'seed-chezayan', 'Poulet grillé, légumes et sauce maison'),
+    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich', 'seed-bunnacorner', 'Falafel, crudités et sauce tahini'),
+    _Dish('Burrito Bœuf', 'Mexico Djib', '1 500', 4.5, 'burrito', 'seed-tadjoura', 'Bœuf épicé, riz, haricots et fromage'),
+    _Dish('Skoudehkaris', 'Saveurs d\'Afar', '1 600', 4.9, 'rice,meat', 'seed-afar', 'Riz épicé traditionnel mijoté au bœuf'),
+    _Dish('Jus de mangue', 'Fruity', '400', 4.6, 'mango,juice', 'seed-mandeb', 'Jus de mangue fraîchement pressé'),
   ];
 
   String _img(String q, int lock) =>
@@ -89,6 +89,7 @@ class DjiboutiDishes extends StatelessWidget {
         d.resto,
         d.restaurantId,
         _img(d.query, 700),
+        d.desc,
       ),
       child: Container(
         width: 168,
@@ -178,6 +179,7 @@ class DjiboutiDishes extends StatelessWidget {
                           d.resto,
                           d.restaurantId,
                           _img(d.query, 700),
+                          d.desc,
                         ),
                         child: Container(
                           width: 34,

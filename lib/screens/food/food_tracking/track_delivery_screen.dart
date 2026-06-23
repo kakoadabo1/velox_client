@@ -36,37 +36,22 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
   List<LatLng> _routePoints = [];
   LatLng? _routeAnchor;       // position du livreur au dernier calcul
   bool _fetchingRoute = false;
+  bool _centeredOnce = false; // on ne recentre la carte qu'une seule fois
 
   /// Recalcule la route routière entre le livreur et l'adresse de livraison.
   /// Throttlé : seulement si aucune route encore, ou si le livreur a bougé > 40 m.
-  Future<void> _maybeUpdateRoute(LatLng driver, LatLng? destination) async {
-    if (destination == null || _fetchingRoute) return;
-    if (_routePoints.isNotEmpty && _routeAnchor != null) {
-      final moved = _locationService.calculateDistance(
-        _routeAnchor!.latitude, _routeAnchor!.longitude,
-        driver.latitude, driver.longitude,
-      );
-      if (moved < 0.04) return; // < 40 m → on garde la route actuelle
+  // Ligne directe livreur → destination : léger, instantané, sans réseau.
+  void _maybeUpdateRoute(LatLng driver, LatLng? destination) {
+    if (destination == null) return;
+    if (_routePoints.length == 2 &&
+        _routePoints.first.latitude == driver.latitude &&
+        _routePoints.first.longitude == driver.longitude) {
+      return; // position inchangée → rien à faire
     }
-    _fetchingRoute = true;
-    try {
-      final route = await _locationService.getRoute(
-        startLat: driver.latitude,
-        startLon: driver.longitude,
-        endLat: destination.latitude,
-        endLon: destination.longitude,
-      );
-      if (!mounted) return;
-      setState(() {
-        _routePoints =
-            route.coordinates.map((c) => LatLng(c.latitude, c.longitude)).toList();
-        _routeAnchor = driver;
-      });
-    } catch (_) {
-      // En cas d'échec on conserve la route précédente
-    } finally {
-      _fetchingRoute = false;
-    }
+    setState(() {
+      _routePoints = [driver, destination];
+      _routeAnchor = driver;
+    });
   }
 
   @override
@@ -153,12 +138,14 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
           final livreurLatLng = LatLng(position.latitude, position.longitude);
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) {
+            if (!mounted) return;
+            if (!_centeredOnce) {
+              _centeredOnce = true;
               try {
                 _mapController.move(livreurLatLng, _mapController.camera.zoom);
               } catch (_) {}
-              _maybeUpdateRoute(livreurLatLng, destination);
             }
+            _maybeUpdateRoute(livreurLatLng, destination);
           });
 
           final markers = <Marker>[
