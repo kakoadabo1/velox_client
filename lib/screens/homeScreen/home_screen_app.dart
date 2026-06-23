@@ -9,6 +9,8 @@ import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/widgets/velox_stats_chart.dart';
 import 'package:nomade_client/dev/dev_simulator.dart';
+import 'package:nomade_client/dev/dev_demo_order.dart'; // TEMP démo
+import 'package:nomade_client/screens/food/food_tracking/order_tracking_screen.dart';
 import 'package:nomade_client/dev/dev_seed.dart'; // TEMP seed
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
@@ -615,7 +617,23 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           VeloxPromoBanner(c: c, onTap: _goToRestaurants),
           _buildLoyaltyCard(c),
           VeloxCategories(c: c, onOpen: _goToRestaurants),
-          DjiboutiDishes(c: c),
+          DjiboutiDishes(
+            c: c,
+            onTap: _goToRestaurants,
+            onAdd: (name, price, resto) async {
+              final id = await createDemoOrder(
+                  name: name, price: price, restaurant: resto);
+              if (!mounted || id == null) return;
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Commande démo créée : $name')),
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => OrderTrackingScreen(orderId: id)),
+              );
+            },
+          ),
           VeloxRestaurantCarousel(c: c, onOpen: _goToRestaurants),
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 28, 20, 14),

@@ -25,9 +25,11 @@ class _Dish {
 }
 
 class DjiboutiDishes extends StatelessWidget {
-  const DjiboutiDishes({super.key, required this.c, this.onTap});
+  const DjiboutiDishes({super.key, required this.c, this.onTap, this.onAdd});
   final AppColors c;
   final VoidCallback? onTap;
+  // (nom du plat, prix en DJF, nom du restaurant)
+  final void Function(String name, int price, String restaurant)? onAdd;
 
   static const _dishes = <_Dish>[
     _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza'),
@@ -162,15 +164,22 @@ class DjiboutiDishes extends StatelessWidget {
                               color: c.primary,
                               fontWeight: FontWeight.w700,
                               fontSize: 14)),
-                      Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          color: c.primary,
-                          borderRadius: BorderRadius.circular(10),
+                      GestureDetector(
+                        onTap: () => onAdd?.call(
+                          d.name,
+                          int.tryParse(d.price.replaceAll(' ', '')) ?? 1000,
+                          d.resto,
                         ),
-                        child: Icon(Icons.add_rounded,
-                            color: c.onPrimary, size: 20),
+                        child: Container(
+                          width: 34,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            color: c.primary,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(Icons.add_rounded,
+                              color: c.onPrimary, size: 22),
+                        ),
                       ),
                     ],
                   ),
