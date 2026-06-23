@@ -57,6 +57,7 @@ Future<String?> createDemoOrder({
     'status': 'pending',
     'paymentMethod': 'cash',
     'deliveryAddress': 'Djibouti-ville (démo)',
+    'deliveryLocation': const GeoPoint(11.5950, 43.1400),
     'createdAt': ts,
     'updatedAt': ts,
   });

@@ -6,7 +6,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:nomade_client/models/order.dart';
 import 'package:nomade_client/providers/all_providers.dart';
 import 'package:nomade_client/theme/app_colors.dart';
-import 'package:nomade_client/widgets/velox_innovations.dart';
 import 'order_completed_screen.dart';
 import 'track_delivery_screen.dart';
 
@@ -26,7 +25,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   Order? _completedOrder;
 
   Timer? _cancelTimer;
-  int    _cancelSecondsLeft  = 120;
+  int    _cancelSecondsLeft  = 15;
   bool   _cancelTimerStarted = false;
 
   @override
@@ -454,24 +453,31 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   // ── STEPPER ───────────────────────────────────────────────────────────────
 
   Widget _buildStepper(Order order) {
-    final currentIndex = _getCurrentStepIndex(order.status);
-    final showVoirLivreur = order.status == Order.statusDelivering &&
-        order.deliveryDriverId != null;
+    final steps = [
+      _StepData(label: 'Confirmée',    subLabel: 'Order validated by system',          subLabelDelivering: 'Order received by system'),
+      _StepData(label: 'Préparation',  subLabel: 'Chef is assembling your order',      subLabelDelivering: 'Chef is currently processing the order'),
+      _StepData(label: 'Prête',        subLabel: 'Awaiting pick-up',                   subLabelDelivering: 'Packaging completed. Awaiting pick-up'),
+      _StepData(label: 'En livraison', subLabel: 'En route vers vous',                 subLabelDelivering: 'Driver is on the way to your location'),
+      _StepData(label: 'Livrée',       subLabel: '',                                   subLabelDelivering: ''),
+    ];
+
+    final currentIndex  = _getCurrentStepIndex(order.status);
+    final isDelivering  = order.status == Order.statusDelivering;
+    const deliveringIdx = 3;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: _c.surfaceLow,
-          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: _c.outlineVariant.withValues(alpha: 0.15)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'SUIVI DE LA COMMANDE',
+              'PROCESS STATUS',
               style: TextStyle(
                 color: _c.onSurfaceVariant,
                 fontSize: 10,
@@ -480,50 +486,138 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            VeloxTimeline(
-              c: _c,
-              steps: VeloxSteps.food,
-              activeIndex: currentIndex,
-            ),
-            if (showVoirLivreur) ...[
-              const SizedBox(height: 14),
-              GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => TrackDeliveryScreen(
-                      orderId: order.id,
-                      livreurId: order.deliveryDriverId!,
-                      livreurName: order.deliveryDriverName,
-                      deliveryLocation: order.deliveryLocation,
-                    ),
+            ...steps.asMap().entries.map((entry) {
+              final i         = entry.key;
+              final step      = entry.value;
+              final isDone    = i < currentIndex;
+              final isCurrent = i == currentIndex;
+              final isLast    = i == steps.length - 1;
+
+              final showVoirLivreur = i == deliveringIdx &&
+                  order.status == Order.statusDelivering &&
+                  order.deliveryDriverId != null;
+
+              return Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Column(
+                    children: [
+                      _buildStepIcon(isDone: isDone, isCurrent: isCurrent),
+                      if (!isLast)
+                        Container(
+                          width: 2,
+                          height: 36,
+                          color: isDone
+                              ? _c.primary
+                              : _c.outlineVariant.withValues(alpha: 0.3),
+                        ),
+                    ],
                   ),
-                ),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: BoxDecoration(
-                    color: _c.primary.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: _c.primary),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'SUIVRE LE LIVREUR',
-                      style: TextStyle(
-                        color: _c.primary,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12,
-                        letterSpacing: 1.2,
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Padding(
+                      padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  step.label.toUpperCase(),
+                                  style: TextStyle(
+                                    color: isCurrent
+                                        ? _c.primary
+                                        : isDone
+                                            ? _c.onSurface
+                                            : _c.outlineVariant,
+                                    fontSize: 13,
+                                    fontWeight: isCurrent || isDone
+                                        ? FontWeight.w800
+                                        : FontWeight.w500,
+                                    letterSpacing: 0.5,
+                                  ),
+                                ),
+                              ),
+                              if (showVoirLivreur)
+                                GestureDetector(
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => TrackDeliveryScreen(
+                                        orderId:          order.id,
+                                        livreurId:        order.deliveryDriverId!,
+                                        livreurName:      order.deliveryDriverName,
+                                        deliveryLocation: order.deliveryLocation,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 10, vertical: 5),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                          color: _c.onSurface.withValues(alpha: 0.5)),
+                                    ),
+                                    child: Text(
+                                      'VOIR LIVREUR',
+                                      style: TextStyle(
+                                        color: _c.onSurface,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 1,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          if ((isCurrent || isDone) &&
+                              (isDelivering
+                                      ? step.subLabelDelivering
+                                      : step.subLabel)
+                                  .isNotEmpty)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2),
+                              child: Text(
+                                isDelivering
+                                    ? step.subLabelDelivering
+                                    : step.subLabel,
+                                style: TextStyle(
+                                  color: _c.onSurfaceVariant.withValues(alpha: 0.7),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-              ),
-            ],
+                ],
+              );
+            }),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildStepIcon({required bool isDone, required bool isCurrent}) {
+    return Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border.all(
+          color: isDone || isCurrent ? _c.primary : _c.outlineVariant,
+          width: 1.5,
+        ),
+      ),
+      child: isDone
+          ? Icon(Icons.check, color: _c.onPrimary, size: 14)
+          : isCurrent
+              ? Container(margin: const EdgeInsets.all(4), color: _c.primary)
+              : null,
     );
   }
 
@@ -839,6 +933,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                 ),
               ),
             ),
+            SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
           ],
         ],
       ),
@@ -961,6 +1056,17 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
 }
 
 // ── Data class pour les étapes ────────────────────────────────────────────────
+
+class _StepData {
+  final String label;
+  final String subLabel;
+  final String subLabelDelivering;
+  const _StepData({
+    required this.label,
+    required this.subLabel,
+    required this.subLabelDelivering,
+  });
+}
 
 // ── Painter grille map ────────────────────────────────────────────────────────
 

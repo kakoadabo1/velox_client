@@ -116,13 +116,21 @@ class DemoSimulator {
         'readyAt': FieldValue.serverTimestamp(),
       });
       await _wait(3);
+      // Le livreur de démo = l'uid du client, pour pouvoir écrire
+      // livreurs/{uid} (autorisé par les règles : owner).
+      final uid = FirebaseAuth.instance.currentUser?.uid;
       await ref.update({
         'status': 'delivering',
-        'deliveryDriverId': 'demo-driver',
+        'deliveryDriverId': uid,
         'deliveryDriverName': 'Idriss (démo)',
         'deliveryDriverPhone': '+25377123456',
       });
-      await _wait(6);
+      // Simule le déplacement GPS du livreur (visible sur la carte de suivi).
+      if (uid != null) {
+        await _animateLivreur(uid);
+      } else {
+        await _wait(6);
+      }
       await ref.update({
         'status': 'completed',
         'deliveredAt': FieldValue.serverTimestamp(),
@@ -130,6 +138,25 @@ class DemoSimulator {
       debugPrint('✅ [DemoSimulator] commande $id terminée');
     } catch (e) {
       debugPrint('⚠️ [DemoSimulator] commande $id: $e');
+    }
+  }
+
+  /// Fait bouger la position du livreur (livreurs/{uid}.currentLocation)
+  /// du restaurant vers le client, pour la carte de suivi.
+  Future<void> _animateLivreur(String uid) async {
+    final ref = _db.collection('livreurs').doc(uid);
+    const startLat = 11.5800, startLng = 43.1480; // resto (démo)
+    const endLat = 11.5950, endLng = 43.1400;     // client (démo)
+    const steps = 8;
+    for (var i = 0; i <= steps; i++) {
+      final t = i / steps;
+      await ref.set({
+        'currentLocation':
+            GeoPoint(startLat + (endLat - startLat) * t,
+                     startLng + (endLng - startLng) * t),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+      await _wait(2);
     }
   }
 

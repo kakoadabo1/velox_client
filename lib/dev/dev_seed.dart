@@ -28,7 +28,8 @@ Future<String> runVeloxSeed() async {
   }
 
   Future<void> item(String id, String restaurantId, String name,
-      String desc, double price, String category, String img) {
+      String desc, double price, String category, String img,
+      [List<Map<String, dynamic>> opts = const []]) {
     return db.collection('menuItems').doc(id).set({
       'restaurantId': restaurantId,
       'name': name,
@@ -39,13 +40,54 @@ Future<String> runVeloxSeed() async {
       'isAvailable': true,
       'preparationTime': 20,
       'discountPercentage': 0,
-      'optionGroups': <Map<String, dynamic>>[],
+      'optionGroups': opts,
       'createdAt': ts,
       'updatedAt': ts,
     });
   }
 
   String img(String q, int lock) => 'https://loremflickr.com/600/400/$q?lock=$lock';
+
+  // Helper pour construire un groupe de suppléments.
+  Map<String, dynamic> grp(
+          String name, String type, bool req, List<List<dynamic>> ch) =>
+      {
+        'name': name,
+        'type': type,
+        'required': req,
+        'choices': ch.map((c) => {'name': c[0], 'price': c[1]}).toList(),
+      };
+  final pizzaSize = grp('Taille', 'single', true, [
+    ['Moyenne', 0],
+    ['Grande', 500],
+  ]);
+  final pizzaExtras = grp('Suppléments', 'multiple', false, [
+    ['Fromage extra', 200],
+    ['Champignons', 150],
+    ['Olives', 100],
+    ['Piment', 0],
+  ]);
+  final grillCuisson = grp('Cuisson', 'single', true, [
+    ['À point', 0],
+    ['Bien cuit', 0],
+    ['Saignant', 0],
+  ]);
+  final grillSauces = grp('Sauces', 'multiple', false, [
+    ['Harissa', 0],
+    ['Ail', 100],
+    ['Yaourt', 100],
+  ]);
+  final burgerExtras = grp('Suppléments', 'multiple', false, [
+    ['Bacon', 200],
+    ['Œuf', 150],
+    ['Cheddar', 150],
+    ['Frites', 500],
+  ]);
+  final drinkChoice = grp('Boisson', 'single', false, [
+    ['Sans', 0],
+    ['Eau', 200],
+    ['Soda', 300],
+  ]);
 
   // ───────── 1. Pizza Palace ─────────
   await resto('seed-pizzapalace', {
@@ -59,11 +101,14 @@ Future<String> runVeloxSeed() async {
     'rating': 4.6, 'totalOrders': 120,
   });
   await item('seed-pp-1', 'seed-pizzapalace', 'Pizza Margherita',
-      'Tomate, mozzarella, basilic frais', 1800, 'Pizzas', img('pizza,margherita', 711));
+      'Tomate, mozzarella, basilic frais', 1800, 'Pizzas', img('pizza,margherita', 711),
+      [pizzaSize, pizzaExtras]);
   await item('seed-pp-2', 'seed-pizzapalace', 'Pizza Reine',
-      'Jambon, champignons, mozzarella', 2000, 'Pizzas', img('pizza,ham', 712));
+      'Jambon, champignons, mozzarella', 2000, 'Pizzas', img('pizza,ham', 712),
+      [pizzaSize, pizzaExtras]);
   await item('seed-pp-3', 'seed-pizzapalace', 'Pizza 4 Fromages',
-      'Mozzarella, chèvre, bleu, parmesan', 2200, 'Pizzas', img('pizza,cheese', 713));
+      'Mozzarella, chèvre, bleu, parmesan', 2200, 'Pizzas', img('pizza,cheese', 713),
+      [pizzaSize, pizzaExtras]);
   await item('seed-pp-4', 'seed-pizzapalace', 'Tiramisu',
       'Dessert italien au café', 800, 'Desserts', img('tiramisu,dessert', 714));
 
@@ -79,11 +124,14 @@ Future<String> runVeloxSeed() async {
     'rating': 4.7, 'totalOrders': 200,
   });
   await item('seed-ca-1', 'seed-chezayan', 'Burger Velox',
-      'Bœuf, cheddar, sauce maison', 1100, 'Burgers', img('burger', 721));
+      'Bœuf, cheddar, sauce maison', 1100, 'Burgers', img('burger', 721),
+      [burgerExtras, drinkChoice]);
   await item('seed-ca-2', 'seed-chezayan', 'Double Bœuf',
-      'Deux steaks, double fromage', 1700, 'Burgers', img('burger,double', 722));
+      'Deux steaks, double fromage', 1700, 'Burgers', img('burger,double', 722),
+      [burgerExtras, drinkChoice]);
   await item('seed-ca-3', 'seed-chezayan', 'Poulet Croustillant',
-      'Filet de poulet pané, salade', 1300, 'Burgers', img('chicken,burger', 723));
+      'Filet de poulet pané, salade', 1300, 'Burgers', img('chicken,burger', 723),
+      [burgerExtras, drinkChoice]);
   await item('seed-ca-4', 'seed-chezayan', 'Frites maison',
       'Frites fraîches et croustillantes', 500, 'Accompagnements', img('fries', 724));
 
@@ -159,11 +207,14 @@ Future<String> runVeloxSeed() async {
     'rating': 4.7, 'totalOrders': 110,
   });
   await item('seed-tg-1', 'seed-tadjoura', 'Brochettes d\'agneau',
-      'Brochettes marinées à la braise', 1500, 'Grillades', img('lamb,skewer', 761));
+      'Brochettes marinées à la braise', 1500, 'Grillades', img('lamb,skewer', 761),
+      [grillCuisson, grillSauces]);
   await item('seed-tg-2', 'seed-tadjoura', 'Poulet grillé',
-      'Demi-poulet grillé, épices', 1400, 'Grillades', img('grilled,chicken', 762));
+      'Demi-poulet grillé, épices', 1400, 'Grillades', img('grilled,chicken', 762),
+      [grillCuisson, grillSauces]);
   await item('seed-tg-3', 'seed-tadjoura', 'Côtelettes',
-      'Côtelettes d\'agneau grillées', 1800, 'Grillades', img('lamb,chops', 763));
+      'Côtelettes d\'agneau grillées', 1800, 'Grillades', img('lamb,chops', 763),
+      [grillCuisson, grillSauces]);
   await item('seed-tg-4', 'seed-tadjoura', 'Salade fraîche',
       'Crudités de saison', 700, 'Accompagnements', img('salad,fresh', 764));
 
