@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nomade_client/providers/all_providers.dart';
 import 'package:nomade_client/theme/app_colors.dart';
+import 'package:nomade_client/utils/avatar_image.dart';
 import 'package:nomade_client/translations/app_translations.dart';
 
 // Screens
@@ -190,19 +191,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       title: tr('about_app'),
                       subtitle: '${tr('version')} 1.0.0',
                       trailing: const Icon(Icons.chevron_right),
-                      onTap: () => showAboutDialog(
-                        context: context,
-                        applicationName: 'VELOX',
-                        applicationVersion: '1.0.0',
-                        applicationLegalese: '© 2026 VELOX — Djibouti',
-                        children: const [
-                          SizedBox(height: 12),
-                          Text(
-                            'Livraison de repas et taxi VTC à Djibouti-ville. '
-                            'Tes courses et tes trajets, en un éclair.',
-                          ),
-                        ],
-                      ),
+                      onTap: () {},
                     ),
                   ],
                 ),
@@ -273,9 +262,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                           CircleAvatar(
                             radius: 50,
                             backgroundColor: _c.surfaceHigh,
-                            backgroundImage: userState.displayPhotoUrl != null
-                                ? NetworkImage(userState.displayPhotoUrl!)
-                                : null,
+                            backgroundImage:
+                                avatarProvider(userState.displayPhotoUrl),
                             child: userState.displayPhotoUrl == null
                                 ? Icon(Icons.person, size: 50, color: _c.primary)
                                 : null,
@@ -608,7 +596,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onTap: () async {
                   Navigator.pop(ctx);
                   final XFile? image = await picker.pickImage(
-                      source: ImageSource.camera, imageQuality: 80);
+                      source: ImageSource.camera,
+                      maxWidth: 400, maxHeight: 400, imageQuality: 60);
                   if (image != null && mounted) await _uploadPhoto(image);
                 },
               ),
@@ -626,7 +615,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onTap: () async {
                   Navigator.pop(ctx);
                   final XFile? image = await picker.pickImage(
-                      source: ImageSource.gallery, imageQuality: 80);
+                      source: ImageSource.gallery,
+                      maxWidth: 400, maxHeight: 400, imageQuality: 60);
                   if (image != null && mounted) await _uploadPhoto(image);
                 },
               ),

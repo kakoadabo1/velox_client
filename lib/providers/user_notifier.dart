@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
 import '../services/hive_service.dart';
 import '../utils/local_cache.dart';
@@ -138,15 +138,7 @@ class UserNotifier extends StateNotifier<UserState> {
 
     try {
       final uid = firebaseUser.uid;
-      // ⏱️ Timeout : empêche un blocage infini du démarrage si Firestore
-      // ne répond pas (database non prête, réseau, projet mal configuré).
-      // En cas de timeout -> TimeoutException attrapée plus bas -> fallback
-      // sur les données Firebase Auth + isLoading:false (l'app continue).
-      final doc = await _firestore
-          .collection('users')
-          .doc(uid)
-          .get()
-          .timeout(const Duration(seconds: 8));
+      final doc = await _firestore.collection('users').doc(uid).get();
 
       if (!mounted) return;
 
@@ -276,19 +268,17 @@ class UserNotifier extends StateNotifier<UserState> {
     final user = _auth.currentUser;
     if (user == null) throw Exception('Utilisateur non connecté');
 
-    final storageRef = FirebaseStorage.instance
-        .ref()
-        .child('profile_photos/${user.uid}.jpg');
-
+    // Pas de Firebase Storage (plan payant) : on stocke la photo, compressée,
+    // directement dans le document utilisateur Firestore, en base64.
     final bytes = await image.readAsBytes();
-    await storageRef.putData(
-      bytes,
-      SettableMetadata(contentType: 'image/jpeg'),
-    );
-    final url = await storageRef.getDownloadURL();
-    await updateProfile(photoUrl: url);
-    debugPrint('✅ [UserNotifier] Photo uploadée: $url');
-    return url;
+    if (bytes.length > 700 * 1024) {
+      // Firestore limite un document à ~1 Mo.
+      throw Exception('Image trop lourde, choisis-en une plus petite.');
+    }
+    final dataUri = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+    await updateProfile(photoUrl: dataUri);
+    debugPrint('✅ [UserNotifier] Photo enregistrée (base64, ${bytes.length} o)');
+    return dataUri;
   }
 
   // ─── LOGOUT ───────────────────────────────────────────────────
