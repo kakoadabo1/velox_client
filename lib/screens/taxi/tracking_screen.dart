@@ -337,6 +337,11 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
+          GestureDetector(
+            onTap: () => Navigator.maybePop(context),
+            child: Icon(Icons.arrow_back_rounded, color: _c.onSurface),
+          ),
+          const SizedBox(width: 12),
           Text(
             'SUIVI DE COURSE',
             style: GoogleFonts.spaceGrotesk(
@@ -664,7 +669,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                     const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 color: _c.surfaceTop,
                 child: Text(
-                  'EN_ROUTE',
+                  'EN ROUTE',
                   style: GoogleFonts.spaceGrotesk(
                     fontSize: 9,
                     fontWeight: FontWeight.w700,

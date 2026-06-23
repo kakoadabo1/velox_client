@@ -179,9 +179,9 @@ class _OrderCompletedScreenState extends State<OrderCompletedScreen> with Single
                   ),
                   child: Text(
                     'Commande #${widget.order.id.substring(0, 8)}',
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.64),
+                      color: Color(0xFF555555),
                       fontWeight: FontWeight.w500,
                     ),
                   ),

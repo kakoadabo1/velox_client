@@ -19,25 +19,28 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 
 class _Dish {
-  final String name, resto, price, query;
+  final String name, resto, price, query, restaurantId;
   final double rating;
-  const _Dish(this.name, this.resto, this.price, this.rating, this.query);
+  const _Dish(this.name, this.resto, this.price, this.rating, this.query,
+      this.restaurantId);
 }
 
 class DjiboutiDishes extends StatelessWidget {
-  const DjiboutiDishes({super.key, required this.c, this.onTap, this.onAdd});
+  const DjiboutiDishes({super.key, required this.c, this.onOpenResto, this.onAdd});
   final AppColors c;
-  final VoidCallback? onTap;
-  // (nom du plat, prix en DJF, nom du restaurant)
-  final void Function(String name, int price, String restaurant)? onAdd;
+  // Ouvre la fiche du restaurant seedé correspondant au plat.
+  final void Function(String restaurantId)? onOpenResto;
+  // (nom, prix DJF, restaurant, restaurantId, imageUrl)
+  final void Function(String name, int price, String restaurant,
+      String restaurantId, String imageUrl)? onAdd;
 
   static const _dishes = <_Dish>[
-    _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza'),
-    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food'),
-    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich'),
-    _Dish('Burrito Bœuf', 'Mexico Djib', '1 500', 4.5, 'burrito'),
-    _Dish('Skoudehkaris', 'Saveurs d\'Afar', '1 600', 4.9, 'rice,meat'),
-    _Dish('Jus de mangue', 'Fruity', '400', 4.6, 'mango,juice'),
+    _Dish('Pizza Margherita', 'Pizza Palace', '1 800', 4.7, 'pizza', 'seed-pizzapalace'),
+    _Dish('Tacos Poulet', 'Tacos City', '1 200', 4.6, 'tacos,food', 'seed-ayan'),
+    _Dish('Wrap Falafel', 'Healthy Corner', '1 000', 4.8, 'wrap,sandwich', 'seed-bunna'),
+    _Dish('Burrito Bœuf', 'Mexico Djib', '1 500', 4.5, 'burrito', 'seed-tadjoura'),
+    _Dish('Skoudehkaris', 'Saveurs d\'Afar', '1 600', 4.9, 'rice,meat', 'seed-afar'),
+    _Dish('Jus de mangue', 'Fruity', '400', 4.6, 'mango,juice', 'seed-mandeb'),
   ];
 
   String _img(String q, int lock) =>
@@ -82,7 +85,7 @@ class DjiboutiDishes extends StatelessWidget {
 
   Widget _card(_Dish d, int i) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () => onOpenResto?.call(d.restaurantId),
       child: Container(
         width: 168,
         decoration: BoxDecoration(
@@ -169,6 +172,8 @@ class DjiboutiDishes extends StatelessWidget {
                           d.name,
                           int.tryParse(d.price.replaceAll(' ', '')) ?? 1000,
                           d.resto,
+                          d.restaurantId,
+                          _img(d.query, 700),
                         ),
                         child: Container(
                           width: 34,

@@ -7,6 +7,14 @@ import '../../../../services/notification_service.dart';
 import '../forgot_password_screen.dart';
 import '../../../../translations/app_translations.dart';
 
+// Palette locale (dark + lime, cohérente avec l'accueil)
+const _kSurface = Color(0xFF1A1A1A);
+const _kBorder = Color(0xFF2E2E2E);
+const _kLime = Color(0xFF9FFF88);
+const _kOnLime = Color(0xFF0A2A0A);
+const _kHint = Color(0xFF8A8A8A);
+const _kText = Color(0xFFF2F2F2);
+
 class SignInForm extends StatefulWidget {
   const SignInForm({super.key});
 
@@ -18,7 +26,6 @@ class _SignInFormState extends State<SignInForm> {
   final _formKey = GlobalKey<FormState>();
   final AuthService _authService = AuthService();
 
-  // Controllers
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
@@ -34,31 +41,22 @@ class _SignInFormState extends State<SignInForm> {
 
   Future<void> _signIn() async {
     if (!_formKey.currentState!.validate()) return;
-
     setState(() => _isLoading = true);
-
     try {
-      // Connexion avec Firebase
       final user = await _authService.signInWithEmailPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
-
       if (user != null && mounted) {
-        // ✅ Rafraîchir le token FCM après connexion
         await NotificationService().refreshTokenForUser();
         if (!mounted) return;
-        // SUCCÈS - Navigation vers home
         Navigator.pushAndRemoveUntil(
           context,
-          MaterialPageRoute(
-            builder: (context) => const HomeScreenApp(),
-          ),
-              (_) => false,
+          MaterialPageRoute(builder: (context) => const HomeScreenApp()),
+          (_) => false,
         );
       }
     } catch (e) {
-      // Erreur
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -69,10 +67,28 @@ class _SignInFormState extends State<SignInForm> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
+  }
+
+  InputDecoration _decoration(String hint, IconData icon, {Widget? suffix}) {
+    OutlineInputBorder border(Color c) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: c, width: 1.4),
+        );
+    return InputDecoration(
+      hintText: hint,
+      hintStyle: const TextStyle(color: _kHint, fontSize: 15),
+      prefixIcon: Icon(icon, color: _kHint, size: 20),
+      suffixIcon: suffix,
+      filled: true,
+      fillColor: _kSurface,
+      contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+      enabledBorder: border(_kBorder),
+      focusedBorder: border(_kLime),
+      errorBorder: border(Colors.red),
+      focusedErrorBorder: border(Colors.red),
+    );
   }
 
   @override
@@ -81,78 +97,94 @@ class _SignInFormState extends State<SignInForm> {
       key: _formKey,
       child: Column(
         children: [
-          // Email Field
+          // Champ e-mail
           TextFormField(
             controller: _emailController,
             validator: emailValidator.call,
             textInputAction: TextInputAction.next,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(
-              hintText: "Adresse e-mail",
-              prefixIcon: Icon(Icons.email_outlined),
-            ),
+            style: const TextStyle(color: _kText, fontSize: 15),
+            decoration: _decoration('Adresse e-mail', Icons.email_outlined),
             enabled: !_isLoading,
           ),
-          const SizedBox(height: defaultPadding),
+          const SizedBox(height: 14),
 
-          // Password Field
+          // Champ mot de passe
           TextFormField(
             controller: _passwordController,
             obscureText: _obscureText,
             validator: passwordValidator.call,
             textInputAction: TextInputAction.done,
             onFieldSubmitted: (_) => _signIn(),
-            decoration: InputDecoration(
-              hintText: tr('password'),
-              prefixIcon: const Icon(Icons.lock_outline),
-              suffixIcon: GestureDetector(
-                onTap: () {
-                  setState(() {
-                    _obscureText = !_obscureText;
-                  });
-                },
-                child: _obscureText
-                    ? Icon(Icons.visibility_off, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54))
-                    : Icon(Icons.visibility, color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.54)),
+            style: const TextStyle(color: _kText, fontSize: 15),
+            decoration: _decoration(
+              'Mot de passe',
+              Icons.lock_outline,
+              suffix: IconButton(
+                onPressed: () => setState(() => _obscureText = !_obscureText),
+                icon: Icon(
+                  _obscureText ? Icons.visibility_off : Icons.visibility,
+                  color: _kHint,
+                  size: 20,
+                ),
               ),
             ),
             enabled: !_isLoading,
           ),
-          const SizedBox(height: defaultPadding),
+          const SizedBox(height: 10),
 
-          // Forget Password
-          GestureDetector(
-            onTap: _isLoading
-                ? null
-                : () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const ForgotPasswordScreen(),
+          // Mot de passe oublié
+          Align(
+            alignment: Alignment.centerRight,
+            child: GestureDetector(
+              onTap: _isLoading
+                  ? null
+                  : () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const ForgotPasswordScreen()),
+                      ),
+              child: const Padding(
+                padding: EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  'Mot de passe oublié ?',
+                  style: TextStyle(
+                      color: _kLime, fontSize: 13, fontWeight: FontWeight.w600),
+                ),
               ),
-            ),
-            child: Text(
-              "Forget Password?",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodySmall!
-                  .copyWith(fontWeight: FontWeight.w500),
             ),
           ),
-          const SizedBox(height: defaultPadding),
+          const SizedBox(height: 18),
 
-          // Sign In Button
-          ElevatedButton(
-            onPressed: _isLoading ? null : _signIn,
-            child: _isLoading
-                ? const SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          // Bouton Se connecter (primaire lime)
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _signIn,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _kLime,
+                foregroundColor: _kOnLime,
+                disabledBackgroundColor: _kLime.withValues(alpha: 0.5),
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14)),
               ),
-            )
-                : const Text("Sign in"),
+              child: _isLoading
+                  ? const SizedBox(
+                      height: 22,
+                      width: 22,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.4,
+                        valueColor: AlwaysStoppedAnimation<Color>(_kOnLime),
+                      ),
+                    )
+                  : const Text(
+                      'Se connecter',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.w800),
+                    ),
+            ),
           ),
         ],
       ),

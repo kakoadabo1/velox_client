@@ -266,7 +266,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'CURRENT OPERATION',
+                          'EN COURS',
                           style: TextStyle(
                             color: _c.onSurfaceVariant,
                             fontSize: 11,
@@ -299,7 +299,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      'SESSION ID',
+                      'COMMANDE',
                       style: TextStyle(
                         color: _c.onSurfaceVariant,
                         fontSize: 10,
@@ -433,7 +433,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
                   ),
                   const SizedBox(width: 5),
                   Text(
-                    isDelivering ? 'LIVE TELEMETRY ACTIVE' : 'SIGNAL: OPTIMAL',
+                    isDelivering ? 'SUIVI EN DIRECT' : 'EN LIGNE',
                     style: TextStyle(
                       color: _c.primary,
                       fontSize: 9,
@@ -454,10 +454,10 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
 
   Widget _buildStepper(Order order) {
     final steps = [
-      _StepData(label: 'Confirmée',    subLabel: 'Order validated by system',          subLabelDelivering: 'Order received by system'),
-      _StepData(label: 'Préparation',  subLabel: 'Chef is assembling your order',      subLabelDelivering: 'Chef is currently processing the order'),
-      _StepData(label: 'Prête',        subLabel: 'Awaiting pick-up',                   subLabelDelivering: 'Packaging completed. Awaiting pick-up'),
-      _StepData(label: 'En livraison', subLabel: 'En route vers vous',                 subLabelDelivering: 'Driver is on the way to your location'),
+      _StepData(label: 'Confirmée',    subLabel: 'Commande validée',          subLabelDelivering: 'Commande reçue'),
+      _StepData(label: 'Préparation',  subLabel: 'Le restaurant prépare votre commande',      subLabelDelivering: 'Le restaurant prépare la commande'),
+      _StepData(label: 'Prête',        subLabel: 'En attente du livreur',                   subLabelDelivering: 'Emballée, en attente du livreur'),
+      _StepData(label: 'En livraison', subLabel: 'En route vers vous',                 subLabelDelivering: 'Le livreur arrive chez vous'),
       _StepData(label: 'Livrée',       subLabel: '',                                   subLabelDelivering: ''),
     ];
 
@@ -477,7 +477,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'PROCESS STATUS',
+              'PROGRESSION',
               style: TextStyle(
                 color: _c.onSurfaceVariant,
                 fontSize: 10,

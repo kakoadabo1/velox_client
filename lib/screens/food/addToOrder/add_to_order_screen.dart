@@ -11,6 +11,7 @@ import '../../../models/sauce_option.dart';
 import '../../../models/order_item.dart';
 import '../../../providers/all_providers.dart';
 import '../../../theme/app_colors.dart';
+import '../orderDetails/order_details_screen.dart';
 
 class AddToOrderScreen extends ConsumerStatefulWidget {
   final MenuItem   menuItem;
@@ -150,7 +151,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
       _showDifferentRestaurantDialog(cart.selectedRestaurant?.name);
     } else {
       _addItemToCart();
-      Navigator.pop(context);
+      _goToCart();
     }
   }
 
@@ -198,7 +199,15 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
     ref.read(cartProvider.notifier).clearCart();
     ref.read(cartProvider.notifier).setRestaurant(widget.restaurant);
     _addItemToCart();
-    Navigator.pop(context);
+    _goToCart();
+  }
+
+  // Va vers l'écran PANIER après l'ajout (remplace la personnalisation).
+  void _goToCart() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const OrderDetailsScreen()),
+    );
   }
 
   void _addItemToCart() {

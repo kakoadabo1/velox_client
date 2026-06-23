@@ -9,8 +9,10 @@ import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/widgets/velox_stats_chart.dart';
 import 'package:nomade_client/dev/dev_simulator.dart';
-import 'package:nomade_client/dev/dev_demo_order.dart'; // TEMP démo
-import 'package:nomade_client/screens/food/food_tracking/order_tracking_screen.dart';
+import 'package:nomade_client/models/menu_item.dart';
+import 'package:nomade_client/screens/food/addToOrder/add_to_order_screen.dart';
+import 'package:nomade_client/services/restaurant_service.dart';
+import 'package:nomade_client/screens/food/details/details_screen.dart';
 import 'package:nomade_client/dev/dev_seed.dart'; // TEMP seed
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
@@ -619,18 +621,50 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           VeloxCategories(c: c, onOpen: _goToRestaurants),
           DjiboutiDishes(
             c: c,
-            onTap: _goToRestaurants,
-            onAdd: (name, price, resto) async {
-              final id = await createDemoOrder(
-                  name: name, price: price, restaurant: resto);
-              if (!mounted || id == null) return;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Commande démo créée : $name')),
+            onOpenResto: (restaurantId) async {
+              final resto =
+                  await RestaurantService().getRestaurantById(restaurantId);
+              if (!mounted) return;
+              if (resto == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Restaurant indisponible — lance le Seed.')),
+                );
+                return;
+              }
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => DetailsScreen(restaurant: resto)),
+              );
+            },
+            onAdd: (name, price, resto, restaurantId, imageUrl) async {
+              final restaurant =
+                  await RestaurantService().getRestaurantById(restaurantId);
+              if (!mounted) return;
+              if (restaurant == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                      content: Text('Restaurant indisponible — lance le Seed.')),
+                );
+                return;
+              }
+              final menuItem = MenuItem(
+                id: 'demo-$name',
+                restaurantId: restaurantId,
+                name: name,
+                description: 'Plat populaire à Djibouti',
+                price: price.toDouble(),
+                imageUrl: imageUrl,
+                category: 'Plats',
+                createdAt: DateTime.now(),
               );
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                    builder: (_) => OrderTrackingScreen(orderId: id)),
+                  builder: (_) => AddToOrderScreen(
+                      menuItem: menuItem, restaurant: restaurant),
+                ),
               );
             },
           ),
