@@ -127,5 +127,45 @@ Future<String> runVeloxSeed() async {
   await item('seed-af-4', 'seed-afar', 'Sambousa',
       'Beignets croustillants à la viande', 600, 'Entrées', img('samosa', 744));
 
-  return '✅ 4 restaurants + 16 plats créés dans Firestore';
+  // ───────── 5. Le Mandeb ─────────
+  await resto('seed-mandeb', {
+    'name': 'Le Mandeb',
+    'address': 'Bord de mer, Djibouti-ville',
+    'description': 'Poissons frais et fruits de mer.',
+    'email': 'contact@lemandeb.dj',
+    'phone': '+25377100005',
+    'imageUrl': img('seafood,fish', 705),
+    'latitude': 11.6010, 'longitude': 43.1480,
+    'rating': 4.5, 'totalOrders': 80,
+  });
+  await item('seed-md-1', 'seed-mandeb', 'Poisson grillé',
+      'Poisson du jour grillé, riz', 1900, 'Plats', img('grilled,fish', 751));
+  await item('seed-md-2', 'seed-mandeb', 'Crevettes sautées',
+      'Crevettes à l\'ail et citron', 2300, 'Plats', img('shrimp', 752));
+  await item('seed-md-3', 'seed-mandeb', 'Calamars frits',
+      'Calamars croustillants, sauce', 2000, 'Entrées', img('calamari,fried', 753));
+  await item('seed-md-4', 'seed-mandeb', 'Riz au poisson',
+      'Riz parfumé et poisson', 1700, 'Plats', img('rice,fish', 754));
+
+  // ───────── 6. Tadjoura Grill ─────────
+  await resto('seed-tadjoura', {
+    'name': 'Tadjoura Grill',
+    'address': 'Quartier 5, Djibouti-ville',
+    'description': 'Grillades et brochettes à la braise.',
+    'email': 'contact@tadjouragrill.dj',
+    'phone': '+25377100006',
+    'imageUrl': img('grill,barbecue', 706),
+    'latitude': 11.5700, 'longitude': 43.1420,
+    'rating': 4.7, 'totalOrders': 110,
+  });
+  await item('seed-tg-1', 'seed-tadjoura', 'Brochettes d\'agneau',
+      'Brochettes marinées à la braise', 1500, 'Grillades', img('lamb,skewer', 761));
+  await item('seed-tg-2', 'seed-tadjoura', 'Poulet grillé',
+      'Demi-poulet grillé, épices', 1400, 'Grillades', img('grilled,chicken', 762));
+  await item('seed-tg-3', 'seed-tadjoura', 'Côtelettes',
+      'Côtelettes d\'agneau grillées', 1800, 'Grillades', img('lamb,chops', 763));
+  await item('seed-tg-4', 'seed-tadjoura', 'Salade fraîche',
+      'Crudités de saison', 700, 'Accompagnements', img('salad,fresh', 764));
+
+  return '✅ 6 restaurants + 24 plats créés dans Firestore';
 }

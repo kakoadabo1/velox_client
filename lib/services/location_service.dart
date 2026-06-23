@@ -394,7 +394,8 @@ class LocationService {
       final encodedQuery = Uri.encodeQueryComponent(query);
       final url = Uri.parse(
         '$_nominatimBaseUrl/search'
-        '?q=$encodedQuery&format=json&limit=8&addressdetails=1&countrycodes=dj',
+        '?q=$encodedQuery&format=json&limit=8&addressdetails=1'
+        '&viewbox=41.75,12.71,43.42,10.91&bounded=0',
       );
       debugPrint('🔗 URL recherche: $url');
 
