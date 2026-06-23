@@ -223,8 +223,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
     });
 
     final tileUrl = _isDark
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
     // Loading
     if ((rideState.isLoading || rideState.isWatching) &&

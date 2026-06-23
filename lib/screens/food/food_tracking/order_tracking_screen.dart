@@ -25,7 +25,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   Order? _completedOrder;
 
   Timer? _cancelTimer;
-  int    _cancelSecondsLeft  = 15;
+  int    _cancelSecondsLeft  = 300; // 5 minutes
   bool   _cancelTimerStarted = false;
 
   @override
@@ -649,7 +649,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'PROVIDER',
+                  'RESTAURANT',
                   style: TextStyle(
                     color: _c.onSurfaceVariant,
                     fontSize: 10,
@@ -684,7 +684,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'MANIFEST CONTENT',
+            'DÉTAIL DE LA COMMANDE',
             style: TextStyle(
               color: _c.onSurfaceVariant,
               fontSize: 10,
@@ -725,7 +725,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
           Row(
             children: [
               Text(
-                'TOTAL PAYLOAD',
+                'TOTAL',
                 style: TextStyle(
                   color: _c.onSurfaceVariant,
                   fontSize: 11,
@@ -748,7 +748,7 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
           const SizedBox(height: 16),
           Center(
             child: Text(
-              'AUTHORIZED COMMAND ONLY · REF ${_sessionId(order.id)}',
+              'Commande ${_sessionId(order.id)}',
               style: TextStyle(
                 color: _c.onSurfaceVariant.withValues(alpha: 0.4),
                 fontSize: 9,
@@ -843,7 +843,8 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
   Widget _buildBottomActions(Order order, {bool isCompletedCache = false}) {
     return Container(
       color: _c.bg,
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 20),
+      padding: EdgeInsets.fromLTRB(
+          16, 8, 16, 20 + MediaQuery.of(context).padding.bottom),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -912,26 +913,60 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
               ),
             ),
             const SizedBox(height: 6),
-            GestureDetector(
-              onTap: () => _confirmCancel(),
-              child: Container(
-                width: double.infinity,
-                height: 54,
-                decoration: BoxDecoration(
-                  color: _c.error.withValues(alpha: 0.05),
-                  border: Border.all(color: _c.error.withValues(alpha: 0.6)),
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'ANNULER LA COMMANDE',
-                  style: TextStyle(
-                    color: _c.error,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 1.2,
+            Row(
+              children: [
+                // Poursuivre : confirme la commande et masque l'annulation
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _cancelSecondsLeft = 0),
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: _c.primary,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'POURSUIVRE',
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: TextStyle(
+                          color: _c.onPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                const SizedBox(width: 10),
+                // Annuler la commande
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => _confirmCancel(),
+                    child: Container(
+                      height: 54,
+                      decoration: BoxDecoration(
+                        color: _c.error.withValues(alpha: 0.05),
+                        border: Border.all(color: _c.error.withValues(alpha: 0.6)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Text(
+                        'ANNULER LA COMMANDE',
+                        textAlign: TextAlign.center,
+                        maxLines: 2,
+                        style: TextStyle(
+                          color: _c.error,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             SizedBox(height: MediaQuery.of(context).padding.bottom + 12),
           ],

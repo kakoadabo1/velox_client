@@ -27,8 +27,8 @@ class RouteMapView extends StatelessWidget {
     final zoom = _calculateZoom(distance);
 
     final String tileUrl = isDarkMap
-        ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-        : 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png';
+        ? 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+        : 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png';
 
     return SizedBox(
       height: height,

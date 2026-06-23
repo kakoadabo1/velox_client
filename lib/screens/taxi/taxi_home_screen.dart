@@ -652,7 +652,7 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+                  urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
                   userAgentPackageName: 'com.nomade253.app',
                 ),
                 MarkerLayer(markers: [
@@ -730,7 +730,7 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
               ),
               children: [
                 TileLayer(
-                  urlTemplate: 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+                  urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
                   userAgentPackageName: 'com.nomade253.app',
                 ),
                 // Ligne route pickup → destination

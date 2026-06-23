@@ -301,13 +301,13 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _c.primary.withValues(alpha: 0.15),
-                    border: Border.all(color: _c.primary.withValues(alpha: 0.6)),
+                    color: _c.primary,
+                    borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     'DISPONIBLE',
                     style: TextStyle(
-                      color: _c.primary,
+                      color: _c.onPrimary,
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,
@@ -757,7 +757,7 @@ class _AddToOrderScreenState extends ConsumerState<AddToOrderScreen> {
                     ...List.generate(
                         _optionGroups.length, _buildGroupSection)
                   else ...[
-                    _buildSectionHeader('SUPPLÉMENTS', required: true),
+                    _buildSectionHeader('SUPPLÉMENTS', required: false),
                     ..._extras.map(_buildExtraItem),
                     _buildSectionHeader('CHOIX DES SAUCES'),
                     _buildSauceGrid(),

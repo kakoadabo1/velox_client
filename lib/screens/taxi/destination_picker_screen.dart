@@ -181,8 +181,8 @@ class _DestinationPickerScreenState extends State<DestinationPickerScreen> {
   }
 
   String get _mapTileUrl => _isDarkMap
-      ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-      : 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png';
+      ? 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      : 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png';
 
   Widget _buildAddressLoadingIndicator() {
     return Column(

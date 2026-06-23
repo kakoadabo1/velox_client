@@ -317,8 +317,8 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
   }
 
   String get _mapTileUrl => _isDarkMap
-      ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-      : 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png';
+      ? 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      : 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png';
 
   @override
   Widget build(BuildContext context) {
@@ -683,7 +683,7 @@ class _AddAddressScreenState extends ConsumerState<AddAddressScreen> {
             child: SingleChildScrollView(
               controller: _scrollController,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(24, 28, 24, 40),
+                padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + MediaQuery.of(context).padding.bottom),
                 decoration: BoxDecoration(
                   color: _c.surfaceLow,
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),

@@ -87,7 +87,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   child: ClipOval(
                     child: Image.asset(
-                      'assets/images/logo-velox.png',
+                      'assets/images/logo-velox1.png',
                       fit: BoxFit.cover,
                     ),
                   ),

@@ -252,8 +252,8 @@ class _DeliveryAddressPickerScreenState extends ConsumerState<DeliveryAddressPic
   }
 
   String get _mapTileUrl => _isDarkMap
-      ? 'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
-      : 'https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png';
+      ? 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png'
+      : 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png';
 
   Widget _buildAddressLoadingIndicator() {
     return Column(
@@ -558,11 +558,11 @@ class _DeliveryAddressPickerScreenState extends ConsumerState<DeliveryAddressPic
             left: 0,
             right: 0,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(24, 28, 24, 40),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-                boxShadow: [
+              padding: EdgeInsets.fromLTRB(24, 28, 24, 24 + MediaQuery.of(context).padding.bottom),
+              decoration: BoxDecoration(
+                color: Theme.of(context).cardColor,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 20,
@@ -613,7 +613,7 @@ class _DeliveryAddressPickerScreenState extends ConsumerState<DeliveryAddressPic
                                 fontWeight: FontWeight.w600,
                                 color: deliveryAddress == null
                                     ? Colors.grey.shade600
-                                    : Colors.black87,
+                                    : Theme.of(context).colorScheme.onSurface,
                               ),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,

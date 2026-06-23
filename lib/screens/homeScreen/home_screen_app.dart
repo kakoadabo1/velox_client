@@ -162,7 +162,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
             ),
           ),
           Image.asset(
-            'assets/images/logo-velox.png',
+            'assets/images/logo-velox1.png',
             height: 90,
             fit: BoxFit.contain,
           ),

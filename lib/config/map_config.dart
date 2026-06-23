@@ -13,7 +13,7 @@ class MapConfig {
   
   // URL des tuiles OpenStreetMap (style clair/light)
   // Option 1 : Style classique (recommandé)
-  static const String tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+  static const String tileUrl = 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png';
   
   // Option 2 : Style CartoDB Light (encore plus clair)
   // static const String tileUrl = 'https://cartodb-basemaps-a.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png';

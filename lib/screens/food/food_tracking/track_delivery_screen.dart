@@ -27,31 +27,48 @@ class TrackDeliveryScreen extends ConsumerStatefulWidget {
   ConsumerState<TrackDeliveryScreen> createState() => _TrackDeliveryScreenState();
 }
 
-class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
+class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen>
+    with SingleTickerProviderStateMixin {
   final MapController _mapController = MapController();
   LivreurLocation? _dernierePosition;
-
-  // ── Route livreur → client ────────────────────────────────────
-  final LocationService _locationService = LocationService();
-  List<LatLng> _routePoints = [];
-  LatLng? _routeAnchor;       // position du livreur au dernier calcul
-  bool _fetchingRoute = false;
   bool _centeredOnce = false; // on ne recentre la carte qu'une seule fois
 
-  /// Recalcule la route routière entre le livreur et l'adresse de livraison.
-  /// Throttlé : seulement si aucune route encore, ou si le livreur a bougé > 40 m.
-  // Ligne directe livreur → destination : léger, instantané, sans réseau.
-  void _maybeUpdateRoute(LatLng driver, LatLng? destination) {
-    if (destination == null) return;
-    if (_routePoints.length == 2 &&
-        _routePoints.first.latitude == driver.latitude &&
-        _routePoints.first.longitude == driver.longitude) {
-      return; // position inchangée → rien à faire
+  // ── Marqueur fluide : on interpole la position entre 2 mises à jour ──
+  late final AnimationController _moveCtrl;
+  LatLng? _shownDriver; // position réellement affichée (interpolée)
+  LatLng? _animFrom;
+  LatLng? _animTo;
+
+  @override
+  void initState() {
+    super.initState();
+    _moveCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1600),
+    )..addListener(() {
+        final f = _animFrom;
+        final t = _animTo;
+        if (f == null || t == null) return;
+        final v = _moveCtrl.value;
+        setState(() {
+          _shownDriver = LatLng(
+            f.latitude + (t.latitude - f.latitude) * v,
+            f.longitude + (t.longitude - f.longitude) * v,
+          );
+        });
+      });
+  }
+
+  /// Lance le glissement fluide du marqueur vers [target].
+  void _animateTo(LatLng target) {
+    if (_animTo != null &&
+        _animTo!.latitude == target.latitude &&
+        _animTo!.longitude == target.longitude) {
+      return; // déjà en route vers cette cible
     }
-    setState(() {
-      _routePoints = [driver, destination];
-      _routeAnchor = driver;
-    });
+    _animFrom = _shownDriver ?? target;
+    _animTo = target;
+    _moveCtrl.forward(from: 0);
   }
 
   @override
@@ -60,8 +77,8 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
     final c = isDark ? AppColors.dark : AppColors.light;
 
     final tileUrl = isDark
-        ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-        : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+        ? 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
+        : 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
 
     final hasDestination = widget.deliveryLocation != null;
     final destination = hasDestination
@@ -136,6 +153,7 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
           }
 
           final livreurLatLng = LatLng(position.latitude, position.longitude);
+          final shown = _shownDriver ?? livreurLatLng;
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (!mounted) return;
@@ -145,12 +163,12 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
                 _mapController.move(livreurLatLng, _mapController.camera.zoom);
               } catch (_) {}
             }
-            _maybeUpdateRoute(livreurLatLng, destination);
+            _animateTo(livreurLatLng);
           });
 
           final markers = <Marker>[
             Marker(
-              point: livreurLatLng,
+              point: shown,
               width: 48,
               height: 48,
               child: Container(
@@ -196,17 +214,24 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
                   options: MapOptions(
                     initialCenter: livreurLatLng,
                     initialZoom: 15,
+                    interactionOptions: const InteractionOptions(
+                      flags: InteractiveFlag.all & ~InteractiveFlag.rotate,
+                    ),
                   ),
                   children: [
                     TileLayer(
                       urlTemplate: tileUrl,
                       subdomains: const ['a', 'b', 'c', 'd'],
+                      userAgentPackageName: 'dj.velox.client',
+                      keepBuffer: 6,
+                      panBuffer: 2,
+                      tileDisplay: const TileDisplay.instantaneous(),
                     ),
-                    if (_routePoints.length >= 2)
+                    if (destination != null)
                       PolylineLayer(
                         polylines: [
                           Polyline(
-                            points: _routePoints,
+                            points: [shown, destination],
                             color: c.primary,
                             strokeWidth: 4,
                             borderColor: Colors.white.withValues(alpha: 0.7),
@@ -339,6 +364,7 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen> {
 
   @override
   void dispose() {
+    _moveCtrl.dispose();
     _mapController.dispose();
     super.dispose();
   }
