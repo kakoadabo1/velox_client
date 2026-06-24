@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:nomade_client/utils/velox_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -651,10 +652,7 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
                 onTap: (_, latLng) => _onMapTap(latLng),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-                  userAgentPackageName: 'com.nomade253.app',
-                ),
+                ...veloxBaseLayers(ref),
                 MarkerLayer(markers: [
                   Marker(
                     point: displayPos, width: 70, height: 70,
@@ -729,10 +727,7 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
                 ),
               ),
               children: [
-                TileLayer(
-                  urlTemplate: 'https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
-                  userAgentPackageName: 'com.nomade253.app',
-                ),
+                ...veloxBaseLayers(ref),
                 // Ligne route pickup → destination
                 PolylineLayer(polylines: [
                   Polyline(

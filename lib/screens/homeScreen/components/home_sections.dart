@@ -11,6 +11,7 @@
 //  vraies photos restaurants (Firestore/assets).
 // ════════════════════════════════════════════════════════════════════════
 import 'package:flutter/material.dart';
+import 'package:nomade_client/widgets/velox_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 
@@ -176,17 +177,8 @@ class _VeloxCategoriesState extends State<VeloxCategories> {
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(19),
-                        child: Image.network(
+                        child: VeloxNetworkImage(
                           'https://loremflickr.com/120/120/${cat.query}?lock=${50 + i}',
-                          fit: BoxFit.cover,
-                          loadingBuilder: (ctx, ch, p) => p == null
-                              ? ch
-                              : Container(color: c.surfaceLow),
-                          errorBuilder: (ctx, e, st) => Container(
-                            color: c.surfaceLow,
-                            child: Icon(Icons.restaurant_rounded,
-                                color: c.onSurfaceVariant, size: 22),
-                          ),
                         ),
                       ),
                     ),
@@ -290,19 +282,10 @@ class VeloxRestaurantCarousel extends StatelessWidget {
                 ClipRRect(
                   borderRadius:
                       const BorderRadius.vertical(top: Radius.circular(20)),
-                  child: Image.network(
+                  child: VeloxNetworkImage(
                     'https://loremflickr.com/400/240/${r.query}?lock=${70 + i}',
                     width: 230,
                     height: 120,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (ctx, ch, p) =>
-                        p == null ? ch : Container(height: 120, color: c.surfaceLow),
-                    errorBuilder: (ctx, e, st) => Container(
-                      height: 120,
-                      color: c.surfaceLow,
-                      child: Icon(Icons.storefront_rounded,
-                          color: c.onSurfaceVariant, size: 30),
-                    ),
                   ),
                 ),
                 Positioned(

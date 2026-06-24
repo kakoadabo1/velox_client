@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:nomade_client/utils/velox_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -219,14 +220,7 @@ class _TrackDeliveryScreenState extends ConsumerState<TrackDeliveryScreen>
                     ),
                   ),
                   children: [
-                    TileLayer(
-                      urlTemplate: tileUrl,
-                      subdomains: const ['a', 'b', 'c', 'd'],
-                      userAgentPackageName: 'dj.velox.client',
-                      keepBuffer: 6,
-                      panBuffer: 2,
-                      tileDisplay: const TileDisplay.instantaneous(),
-                    ),
+                    ...veloxBaseLayers(ref),
                     if (destination != null)
                       PolylineLayer(
                         polylines: [

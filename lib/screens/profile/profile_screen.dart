@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:nomade_client/providers/low_data_notifier.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nomade_client/providers/all_providers.dart';
 import 'package:nomade_client/theme/app_colors.dart';
@@ -46,6 +47,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   icon: Icons.palette,
                   children: [
                     _buildDarkModeToggle(themeState),
+                    _buildLowDataToggle(),
                     _buildLanguageSelector(langState),
                   ],
                 ),
@@ -449,6 +451,39 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       value: themeState.isDarkMode,
       activeThumbColor: _c.primary,
       onChanged: (value) => ref.read(themeNotifierProvider.notifier).toggleTheme(),
+    );
+  }
+
+  Widget _buildLowDataToggle() {
+    final lowData = ref.watch(lowDataModeProvider);
+    return SwitchListTile(
+      secondary: Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: _c.primary.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Icon(
+          lowData ? Icons.data_saver_on : Icons.data_saver_off,
+          color: _c.primary,
+          size: 22,
+        ),
+      ),
+      title: Text(
+        'Mode faible data',
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w600,
+          color: _c.onSurface,
+        ),
+      ),
+      subtitle: Text(
+        lowData ? 'Cartes et images allegees' : 'Desactive',
+        style: TextStyle(fontSize: 13, color: _c.onSurfaceVariant),
+      ),
+      value: lowData,
+      activeThumbColor: _c.primary,
+      onChanged: (_) => ref.read(lowDataModeProvider.notifier).toggle(),
     );
   }
 

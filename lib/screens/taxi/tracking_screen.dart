@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:nomade_client/utils/velox_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
@@ -368,10 +369,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
         initialZoom: 14,
       ),
       children: [
-        TileLayer(
-          urlTemplate: tileUrl,
-          subdomains: const ['a', 'b', 'c', 'd'],
-        ),
+        ...veloxBaseLayers(ref),
         MarkerLayer(
           markers: [
             Marker(

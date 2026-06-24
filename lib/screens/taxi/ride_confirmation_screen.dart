@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:nomade_client/utils/velox_map.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -232,10 +233,7 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
                   const InteractionOptions(flags: InteractiveFlag.none),
             ),
             children: [
-              TileLayer(
-                urlTemplate: tileUrl,
-                subdomains: const ['a', 'b', 'c', 'd'],
-              ),
+              ...veloxBaseLayers(ref),
               PolylineLayer(
                 polylines: [
                   Polyline(

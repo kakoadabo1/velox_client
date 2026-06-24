@@ -15,6 +15,7 @@
 // ════════════════════════════════════════════════════════════════════════════
 
 import 'package:flutter/material.dart';
+import 'package:nomade_client/widgets/velox_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 
@@ -104,33 +105,10 @@ class DjiboutiDishes extends StatelessWidget {
             ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(20)),
-              child: Image.network(
+              child: VeloxNetworkImage(
                 _img(d.query, 10 + i),
                 width: 168,
                 height: 110,
-                fit: BoxFit.cover,
-                loadingBuilder: (ctx, child, prog) => prog == null
-                    ? child
-                    : Container(
-                        width: 168,
-                        height: 110,
-                        color: c.surfaceLow,
-                        child: Center(
-                          child: SizedBox(
-                            width: 22,
-                            height: 22,
-                            child: CircularProgressIndicator(
-                                strokeWidth: 2, color: c.primary),
-                          ),
-                        ),
-                      ),
-                errorBuilder: (ctx, err, st) => Container(
-                  width: 168,
-                  height: 110,
-                  color: c.surfaceLow,
-                  child: Icon(Icons.restaurant_rounded,
-                      color: c.onSurfaceVariant, size: 30),
-                ),
               ),
             ),
             Padding(

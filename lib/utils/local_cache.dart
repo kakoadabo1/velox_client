@@ -90,6 +90,13 @@ class LocalCache {
 
   static bool getDarkMode() => _instance.getBool('darkMode') ?? true;
 
+  // Mode faible data (cartes + images allégées)
+  static Future<void> saveLowData(bool value) async {
+    await _instance.setBool('lowData', value);
+  }
+
+  static bool getLowData() => _instance.getBool('lowData') ?? false;
+
   // ─── NOTIFICATION PENDING (background handler) ───────────────
   // Persiste la dernière notification reçue en background
   // pour navigation au prochain démarrage de l'app.

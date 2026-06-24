@@ -28,7 +28,6 @@ class HomeScreenApp extends ConsumerStatefulWidget {
 
 class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
   int _selectedIndex = 0;
-  final PageController _pageController = PageController();
   bool _locationOff = false; // localisation coupée -> on affiche le bandeau
 
   @override
@@ -72,7 +71,6 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
 
   @override
   void dispose() {
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -107,30 +105,8 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
 
   void _onItemTapped(int index) {
     if (!mounted) return;
-    switch (index) {
-      case 1: // Commandes
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const OrderHistoryScreen()),
-        );
-        break;
-      case 2: // Taxi
-        _goToTaxi();
-        break;
-      case 3: // Profil
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ProfileScreen()),
-        );
-        break;
-      default: // Accueil
-        setState(() => _selectedIndex = 0);
-        if (_pageController.hasClients) {
-          _pageController.animateToPage(0,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut);
-        }
-    }
+    // Onglets persistants : on change juste de page, la nav reste affichée.
+    setState(() => _selectedIndex = index);
   }
 
   // ── HEADER ───────────────────────────────────────────────────────────────
@@ -803,8 +779,8 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
 
   Widget _buildBottomNav(AppColors c) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-      height: 66,
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
+      height: 58,
       decoration: BoxDecoration(
         color: c.surface,
         borderRadius: BorderRadius.circular(26),
@@ -839,7 +815,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               decoration: isActive
                   ? BoxDecoration(
                       color: c.primary.withValues(alpha: 0.15),
@@ -849,15 +825,15 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
               child: Icon(
                 icon,
                 color: isActive ? c.primary : c.onSurfaceVariant,
-                size: 23,
+                size: 20,
               ),
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               label,
               style: TextStyle(
                 color: isActive ? c.primary : c.onSurfaceVariant,
-                fontSize: 11,
+                fontSize: 9.5,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
@@ -932,11 +908,12 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
     return Scaffold(
       backgroundColor: c.bg,
       body: SafeArea(
-        child: PageView(
-          controller: _pageController,
-          onPageChanged: (i) => setState(() => _selectedIndex = i),
+        child: IndexedStack(
+          index: _selectedIndex,
           children: [
             _buildHomePage(firstName, c),
+            const OrderHistoryScreen(),
+            const TaxiHomeScreen(),
             const ProfileScreen(),
           ],
         ),
