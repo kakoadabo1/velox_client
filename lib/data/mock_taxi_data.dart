@@ -159,18 +159,6 @@ class MockTaxiData {
       description: 'Plus de confort pour vos trajets',
       features: ['Climatisation', 'WiFi', 'Eau fraîche'],
     ),
-    const RideChoice(
-      id: 'taxi_van',
-      name: 'Taxi Van',
-      type: RideType.van,
-      imagePath: 'assets/vehicule/taxiprobox.png',
-      seats: 7,
-      basePrice: 400,
-      pricePerKm: 80,
-      estimatedArrivalTime: '7 min',
-      description: 'Idéal pour les groupes',
-      features: ['Climatisation', '7 places', 'Espace bagages'],
-    ),
   ];
 
   // ========== SUGGESTIONS DE DESTINATIONS ==========

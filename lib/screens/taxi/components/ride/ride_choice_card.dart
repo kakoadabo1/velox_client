@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:nomade_client/models/ride_choice.dart';
-import 'package:nomade_client/constants.dart';
 import 'package:nomade_client/theme/app_colors.dart';
 
-/// Card pour un choix de véhicule – Design horizontal compact (style Uber/Bolt)
-/// Utilisé dans TaxiHomeScreen pour la sélection de véhicule
+/// Carte de choix de véhicule — PNG conservé, bordure premium + pastille check.
 class RideChoiceCard extends StatelessWidget {
   const RideChoiceCard({
     super.key,
@@ -16,121 +14,157 @@ class RideChoiceCard extends StatelessWidget {
   });
 
   final RideChoice ride;
-  final double distance; // 0 si pas de destination (affiche prix de base)
+  final double distance; // 0 si pas de destination (affiche le prix de base)
   final VoidCallback onTap;
   final bool isSelected;
   final AppColors c;
 
+  String get _image {
+    switch (ride.type) {
+      case RideType.comfort:
+        return 'assets/vehicule/taxi-A.png';
+      case RideType.standard:
+        return 'assets/vehicule/taxi-B.png';
+      default:
+        return 'assets/vehicule/taxi-A.png';
+    }
+  }
+
+  bool get _popular => ride.type == RideType.comfort;
+
   @override
   Widget build(BuildContext context) {
-    final price = distance > 0
-        ? ride.calculatePrice(distance)
-        : ride.basePrice;
+    final price = distance > 0 ? ride.calculatePrice(distance) : ride.basePrice;
 
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeInOut,
-        padding: const EdgeInsets.all(12),
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+        padding: const EdgeInsets.fromLTRB(10, 12, 10, 14),
         decoration: BoxDecoration(
-          gradient: isSelected
-              ? const LinearGradient(
-            colors: [drapeauVert, vertPrincipal],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          )
-              : LinearGradient(
-            colors: [c.surfaceLow, c.surface],
+          color: isSelected ? c.primary.withValues(alpha: 0.12) : c.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected
+                ? c.primary
+                : c.outlineVariant.withValues(alpha: 0.3),
+            width: isSelected ? 2 : 1,
           ),
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha:isSelected ? 0.15 : 0.06),
-              blurRadius: isSelected ? 14 : 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
-          border: isSelected
-              ? null
-              : Border.all(color: c.outlineVariant),
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: Stack(
+          clipBehavior: Clip.none,
           children: [
-            // Badge "Pop" si applicable (standard ou comfort)
-            if (ride.id == 'standard' || ride.id == 'comfort')
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                margin: const EdgeInsets.only(bottom: 4),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.orange, Colors.deepOrange],
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Bandeau "Populaire" (Confort) — réserve la même hauteur ailleurs
+                if (_popular)
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    margin: const EdgeInsets.only(bottom: 6),
+                    decoration: BoxDecoration(
+                      color: c.primary.withValues(alpha: 0.18),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      'Populaire',
+                      style: TextStyle(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w800,
+                        color: c.primary,
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                  )
+                else
+                  const SizedBox(height: 23),
+
+                // Image PNG du véhicule
+                SizedBox(
+                  height: 46,
+                  child: Image.asset(
+                    _image,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) => Icon(
+                      Icons.local_taxi_rounded,
+                      size: 34,
+                      color: isSelected ? c.primary : c.onSurface,
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Text(
-                  '🔥 Pop',
+                const SizedBox(height: 8),
+
+                // Nom
+                Text(
+                  ride.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 8,
-                    color: blanc,
-                    fontWeight: FontWeight.bold,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: c.onSurface,
                   ),
                 ),
-              ),
+                const SizedBox(height: 3),
 
-            // Image véhicule
-            SizedBox(
-              height: 42,
-              child: Image.asset(
-                _getVehicleImage(),
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => Icon(
-                  Icons.directions_car,
-                  size: 32,
-                  color: isSelected ? blanc : vertPrincipal,
+                // ETA + places
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.access_time_rounded,
+                        size: 11, color: c.onSurfaceVariant),
+                    const SizedBox(width: 3),
+                    Text(
+                      ride.estimatedArrivalTime ?? '—',
+                      style:
+                          TextStyle(fontSize: 11, color: c.onSurfaceVariant),
+                    ),
+                    const SizedBox(width: 7),
+                    Icon(Icons.person_rounded,
+                        size: 11, color: c.onSurfaceVariant),
+                    const SizedBox(width: 2),
+                    Text(
+                      '${ride.seats}',
+                      style:
+                          TextStyle(fontSize: 11, color: c.onSurfaceVariant),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 7),
+
+                // Prix
+                Text(
+                  '${price.toStringAsFixed(0)} FDJ',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? c.primary : c.onSurface,
+                  ),
+                ),
+              ],
+            ),
+
+            // Innovation : pastille check quand sélectionné
+            if (isSelected)
+              Positioned(
+                top: 0,
+                right: 0,
+                child: Container(
+                  width: 22,
+                  height: 22,
+                  decoration: BoxDecoration(
+                    color: c.primary,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.check_rounded,
+                      size: 15, color: c.onPrimary),
                 ),
               ),
-            ),
-            const SizedBox(height: 6),
-
-            // Nom véhicule
-            Text(
-              ride.name,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 13,
-                color: isSelected ? blanc : c.onSurface,
-              ),
-            ),
-            const SizedBox(height: 3),
-
-            // Prix
-            Text(
-              '${price.toStringAsFixed(0)} FDJ',
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                color: isSelected ? blanc.withValues(alpha:0.75) : drapeauVert,
-              ),
-            ),
           ],
         ),
       ),
     );
-  }
-
-  /// Chemins d'images pour les 3 types de véhicules
-  String _getVehicleImage() {
-    switch (ride.type) {
-      case RideType.standard:
-        return 'assets/vehicule/taxi-B.png';
-      case RideType.comfort:
-        return 'assets/vehicule/taxi-A.png';
-      case RideType.van:
-        return 'assets/vehicule/taxiprobox.png';
-      default:
-        return 'assets/vehicule/taxi-A.png';
-    }
   }
 }

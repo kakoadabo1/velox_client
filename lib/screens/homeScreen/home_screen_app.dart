@@ -10,6 +10,7 @@ import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/widgets/velox_stats_chart.dart';
 import 'package:nomade_client/dev/dev_simulator.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:nomade_client/screens/homeScreen/uber_eats_home.dart';
 import 'package:nomade_client/models/menu_item.dart';
 import 'package:nomade_client/screens/food/addToOrder/add_to_order_screen.dart';
 import 'package:nomade_client/models/restaurant.dart';
@@ -777,21 +778,56 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
     );
   }
 
+  // Bloc "Nos services" (réaffiché après la bannière promo).
+  Widget _buildServicesBlock(AppColors c) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+          child: Text(
+            tr('our_services'),
+            style: TextStyle(
+              color: c.onSurface,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              _buildServiceCard(
+                title: 'VTC DJIB',
+                subtitle: tr('vtc_subtitle'),
+                imageAsset: 'assets/vehicule/taxi-B.png',
+                onTap: _goToTaxi,
+                c: c,
+              ),
+              _buildServiceCard(
+                title: tr('restaurants_fastfood'),
+                subtitle: tr('food_subtitle'),
+                imageAsset: 'assets/images/fast-food.png',
+                onTap: _goToRestaurants,
+                c: c,
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildBottomNav(AppColors c) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 10),
-      height: 58,
+      margin: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+      height: 52,
       decoration: BoxDecoration(
         color: c.surface,
-        borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: c.outlineVariant.withValues(alpha: 0.12)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: c.outlineVariant.withValues(alpha: 0.18)),
       ),
       child: Row(
         children: [
@@ -815,7 +851,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
           children: [
             AnimatedContainer(
               duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
               decoration: isActive
                   ? BoxDecoration(
                       color: c.primary.withValues(alpha: 0.15),
@@ -825,15 +861,15 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
               child: Icon(
                 icon,
                 color: isActive ? c.primary : c.onSurfaceVariant,
-                size: 20,
+                size: 18,
               ),
             ),
-            const SizedBox(height: 2),
+            const SizedBox(height: 1),
             Text(
               label,
               style: TextStyle(
                 color: isActive ? c.primary : c.onSurfaceVariant,
-                fontSize: 9.5,
+                fontSize: 9,
                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
               ),
             ),
@@ -911,7 +947,49 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
         child: IndexedStack(
           index: _selectedIndex,
           children: [
-            _buildHomePage(firstName, c),
+            UberEatsHome(
+              c: c,
+              firstName: firstName,
+              locationOff: _locationOff,
+              onRequestLocation: _requestLocation,
+              onOpenRestaurants: _goToRestaurants,
+              onGoTaxi: _goToTaxi,
+              servicesSection: _buildServicesBlock(c),
+              statsSection: _buildStats(c),
+              onAddDish:
+                  (name, price, resto, restaurantId, imageUrl, description) {
+                final now = DateTime.now();
+                final restaurant = Restaurant(
+                  id: restaurantId,
+                  name: resto,
+                  address: 'Djibouti-ville',
+                  description: '',
+                  email: '',
+                  phone: '',
+                  imageUrl: imageUrl,
+                  latitude: 11.5721,
+                  longitude: 43.1456,
+                  createdAt: now,
+                );
+                final menuItem = MenuItem(
+                  id: 'demo-$name',
+                  restaurantId: restaurantId,
+                  name: name,
+                  description: description,
+                  price: price.toDouble(),
+                  imageUrl: imageUrl,
+                  category: 'Plats',
+                  createdAt: now,
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => AddToOrderScreen(
+                        menuItem: menuItem, restaurant: restaurant),
+                  ),
+                );
+              },
+            ),
             const OrderHistoryScreen(),
             const TaxiHomeScreen(),
             const ProfileScreen(),

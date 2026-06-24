@@ -317,20 +317,18 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
               const SizedBox(height: 10),
 
               // ── Titre ──────────────────────────────────────
-              ShaderMask(
-                shaderCallback: (bounds) => const LinearGradient(
-                  colors: [drapeauVert, drapeauBleu, drapeauRouge],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: Text(
-                  hasDestination
-                      ? '${tr('ride_ready')} ✓'
-                      : '${tr('where_to_today')} 🌍',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    hasDestination ? tr('ride_ready') : tr('where_to_today'),
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.w800,
+                      color: _c.onSurface,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                 ),
               ),
@@ -395,19 +393,13 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
       elevation: 0,
       title: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [drapeauVert, drapeauBleu, drapeauRouge],
-                begin: Alignment.topLeft, end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Text('🇩🇯', style: TextStyle(fontSize: 20)),
-          ),
+          Image.asset('assets/images/logo-velox1.png', height: 28),
           const SizedBox(width: 8),
-          const Text('Velox', style: TextStyle(color: vertPrincipal, fontSize: 22, fontWeight: FontWeight.bold)),
+          Text('Taxi',
+              style: TextStyle(
+                  color: _c.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700)),
         ],
       ),
       actions: [
@@ -850,15 +842,8 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
         duration: const Duration(milliseconds: 300),
         height: 60,
         decoration: BoxDecoration(
-          gradient: canTap
-              ? const LinearGradient(
-              colors: [drapeauVert, vertPrincipal, drapeauBleu],
-              begin: Alignment.topLeft, end: Alignment.bottomRight)
-              : LinearGradient(colors: [Colors.grey.shade300, Colors.grey.shade400]),
+          color: canTap ? _c.primary : _c.surfaceLow,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: canTap
-              ? [BoxShadow(color: drapeauVert.withValues(alpha:0.35), blurRadius: 14, offset: const Offset(0, 8))]
-              : [],
         ),
         child: ElevatedButton(
           onPressed: canTap ? _openDestinationPicker : null,
@@ -873,14 +858,14 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
             children: [
               Icon(
                 canTap ? Icons.search : Icons.location_searching,
-                color: canTap ? blanc : Colors.white70, size: 20,
+                color: canTap ? _c.onPrimary : _c.onSurfaceVariant, size: 20,
               ),
               const SizedBox(width: 10),
               Text(
                 canTap ? tr('choose_destination') : tr('locating_in_progress'),
                 style: TextStyle(
                   fontSize: 17, fontWeight: FontWeight.bold,
-                  color: canTap ? blanc : Colors.white70, letterSpacing: 0.3,
+                  color: canTap ? _c.onPrimary : _c.onSurfaceVariant, letterSpacing: 0.3,
                 ),
               ),
             ],
@@ -900,15 +885,8 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
       child: Container(
         height: 62,
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [drapeauVert, vertPrincipal, drapeauBleu],
-            begin: Alignment.topLeft, end: Alignment.bottomRight,
-          ),
+          color: _c.primary,
           borderRadius: BorderRadius.circular(30),
-          boxShadow: [
-            BoxShadow(color: drapeauVert.withValues(alpha:0.4), blurRadius: 16, offset: const Offset(0, 8)),
-            BoxShadow(color: drapeauBleu.withValues(alpha:0.2), blurRadius: 20, offset: const Offset(0, 4)),
-          ],
         ),
         child: ElevatedButton(
           onPressed: _confirmRide,
@@ -920,20 +898,20 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.local_taxi, color: blanc, size: 22),
+              Icon(Icons.local_taxi, color: _c.onPrimary, size: 22),
               const SizedBox(width: 10),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(tr('confirm_ride'),
-                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: blanc, letterSpacing: 0.3)),
+                      style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold, color: _c.onPrimary, letterSpacing: 0.3)),
                   Text('${price.toStringAsFixed(0)} FDJ · ${_selectedRide.name}',
-                      style: TextStyle(fontSize: 12, color: blanc.withValues(alpha:0.85))),
+                      style: TextStyle(fontSize: 12, color: _c.onPrimary.withValues(alpha: 0.85))),
                 ],
               ),
               const SizedBox(width: 10),
-              const Icon(Icons.arrow_forward, color: blanc, size: 20),
+              Icon(Icons.arrow_forward, color: _c.onPrimary, size: 20),
             ],
           ),
         ),
