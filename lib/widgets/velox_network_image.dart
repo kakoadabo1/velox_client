@@ -40,8 +40,8 @@ class VeloxNetworkImage extends ConsumerWidget {
         height: height,
         color: const Color(0xFF2A2A2A),
         alignment: Alignment.center,
-        child: const Icon(Icons.broken_image_outlined,
-            color: Color(0xFF6A6A6A), size: 28),
+        child: const Icon(Icons.restaurant_rounded,
+            color: Color(0xFF6A6A6A), size: 26),
       ),
     );
   }

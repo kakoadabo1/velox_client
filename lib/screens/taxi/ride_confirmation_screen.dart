@@ -582,20 +582,16 @@ class _RideConfirmationScreenState extends ConsumerState<RideConfirmationScreen>
       right: 0,
       child: Container(
         color: _c.bg,
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+        padding: EdgeInsets.fromLTRB(
+            24, 16, 24, 20 + MediaQuery.of(context).padding.bottom),
         child: GestureDetector(
           onTap: isCreating ? null : _confirmRide,
           child: Container(
             width: double.infinity,
-            height: 64,
+            height: 60,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
-                colors: _isDark
-                    ? const [Color(0xFF9FFF88), Color(0xFF00FD00)]
-                    : [_c.primary, _c.primary],
-              ),
+              color: _c.primary,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: isCreating
                 ? Center(

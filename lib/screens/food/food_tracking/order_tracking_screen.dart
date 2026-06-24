@@ -147,22 +147,24 @@ class _OrderTrackingScreenState extends ConsumerState<OrderTrackingScreen> {
         icon: Icon(Icons.menu, color: _c.primary),
         onPressed: () {},
       ),
-      title: Image.asset('assets/images/logo-velox.png', height: 36, fit: BoxFit.contain),
+      title: Image.asset('assets/images/logo-velox1.png', height: 40, fit: BoxFit.contain),
       centerTitle: true,
       actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 12),
-          width: 36,
-          height: 36,
-          decoration: BoxDecoration(
-            color: _c.surfaceHigh,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(color: _c.outlineVariant.withValues(alpha: 0.3)),
-          ),
-          child: IconButton(
-            padding: EdgeInsets.zero,
-            icon: Icon(Icons.close, color: _c.onSurfaceVariant, size: 18),
-            onPressed: _showExitDialog,
+        Padding(
+          padding: const EdgeInsets.only(right: 12),
+          child: GestureDetector(
+            onTap: _showExitDialog,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _c.surfaceHigh,
+                shape: BoxShape.circle,
+                border:
+                    Border.all(color: _c.outlineVariant.withValues(alpha: 0.3)),
+              ),
+              child: Icon(Icons.close_rounded, color: _c.onSurface, size: 20),
+            ),
           ),
         ),
       ],

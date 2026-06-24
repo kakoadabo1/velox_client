@@ -414,7 +414,11 @@ class _TaxiHomeScreenState extends ConsumerState<TaxiHomeScreen>
             child: IconButton(
               icon: const Icon(Icons.notifications_none),
               color: _c.onSurfaceVariant,
-              onPressed: () {},
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Aucune notification pour le moment')),
+                );
+              },
             ),
           ),
         ),

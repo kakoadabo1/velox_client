@@ -11,7 +11,9 @@ class UberEatsHome extends ConsumerWidget {
   final bool locationOff;
   final VoidCallback onRequestLocation;
   final VoidCallback onOpenRestaurants;
+  final void Function(String category) onOpenCategory;
   final VoidCallback onGoTaxi;
+  final VoidCallback onOpenProfile;
   final Widget? servicesSection;
   final Widget? statsSection;
   final void Function(
@@ -30,14 +32,16 @@ class UberEatsHome extends ConsumerWidget {
     required this.locationOff,
     required this.onRequestLocation,
     required this.onOpenRestaurants,
+    required this.onOpenCategory,
     required this.onGoTaxi,
+    required this.onOpenProfile,
     required this.onAddDish,
     this.servicesSection,
     this.statsSection,
   });
 
-  static String _img(String q, int lock) =>
-      'https://loremflickr.com/600/400/$q?lock=$lock';
+  static String _u(String id) =>
+      'https://images.unsplash.com/photo-$id?w=400&q=70&auto=format&fit=crop';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -52,7 +56,6 @@ class UberEatsHome extends ConsumerWidget {
           if (locationOff) _locationBanner(),
           const SizedBox(height: 6),
           _categories(),
-          _filters(),
           _promo(),
           if (servicesSection != null) servicesSection!,
           if (statsSection != null) statsSection!,
@@ -74,16 +77,19 @@ class UberEatsHome extends ConsumerWidget {
         children: [
           Image.asset('assets/images/logo-velox1.png', height: 40),
           const Spacer(),
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: c.surfaceHigh,
-              border:
-                  Border.all(color: c.primary.withValues(alpha: 0.4), width: 2),
+          GestureDetector(
+            onTap: onOpenProfile,
+            child: Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: c.surfaceHigh,
+                border: Border.all(
+                    color: c.primary.withValues(alpha: 0.4), width: 2),
+              ),
+              child: Icon(Icons.person, color: c.primary, size: 24),
             ),
-            child: Icon(Icons.person, color: c.primary, size: 24),
           ),
         ],
       ),
@@ -185,20 +191,21 @@ class UberEatsHome extends ConsumerWidget {
         itemBuilder: (_, i) {
           final cat = _cats[i];
           return GestureDetector(
-            onTap: onOpenRestaurants,
+            onTap: () => onOpenCategory(cat.label),
             child: Column(
               children: [
                 Container(
                   width: 60,
                   height: 60,
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     color: c.surfaceLow,
                     shape: BoxShape.circle,
                     border: Border.all(
                         color: c.outlineVariant.withValues(alpha: 0.2)),
                   ),
-                  alignment: Alignment.center,
-                  child: Text(cat.emoji, style: const TextStyle(fontSize: 28)),
+                  child: VeloxNetworkImage(_u(cat.imageId),
+                      width: 60, height: 60),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -217,35 +224,6 @@ class UberEatsHome extends ConsumerWidget {
   }
 
   // ── Filtres (chips horizontales) ───────────────────────────────
-  Widget _filters() {
-    final chips = ['Offres', 'Livraison gratuite', '-30 min', '4★ et +', 'Prix'];
-    return SizedBox(
-      height: 56,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        itemCount: chips.length,
-        separatorBuilder: (_, __) => const SizedBox(width: 10),
-        itemBuilder: (_, i) => Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: c.surfaceLow,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: c.outlineVariant.withValues(alpha: 0.25)),
-          ),
-          child: Text(
-            chips[i],
-            style: TextStyle(
-                color: c.onSurface,
-                fontSize: 13,
-                fontWeight: FontWeight.w600),
-          ),
-        ),
-      ),
-    );
-  }
-
   // ── Bannière promo ─────────────────────────────────────────────
   Widget _promo() {
     return GestureDetector(
@@ -340,7 +318,7 @@ class UberEatsHome extends ConsumerWidget {
                       ClipRRect(
                         borderRadius: BorderRadius.circular(16),
                         child: VeloxNetworkImage(
-                          _img(d.query, 100 + i),
+                          _u(d.imageId),
                           width: 260,
                           height: 150,
                         ),
@@ -416,7 +394,7 @@ class UberEatsHome extends ConsumerWidget {
     final priceInt = d.price;
     return GestureDetector(
       onTap: () => onAddDish(d.name, priceInt, d.resto, d.restaurantId,
-          _img(d.query, 200 + i), d.desc),
+          _u(d.imageId), d.desc),
       child: Container(
         margin: const EdgeInsets.fromLTRB(20, 0, 20, 14),
         child: Row(
@@ -425,7 +403,7 @@ class UberEatsHome extends ConsumerWidget {
             ClipRRect(
               borderRadius: BorderRadius.circular(14),
               child: VeloxNetworkImage(
-                _img(d.query, 200 + i),
+                _u(d.imageId),
                 width: 92,
                 height: 92,
               ),
@@ -540,19 +518,18 @@ class UberEatsHome extends ConsumerWidget {
 // ═══════════════════════════════════════════════════════════════
 
 class _Cat {
-  final String emoji;
+  final String imageId;
   final String label;
-  const _Cat(this.emoji, this.label);
+  const _Cat(this.imageId, this.label);
 }
 
 const _cats = [
-  _Cat('🍕', 'Pizza'),
-  _Cat('🌮', 'Tacos'),
-  _Cat('🍔', 'Burgers'),
-  _Cat('🥗', 'Healthy'),
-  _Cat('🍗', 'Grillades'),
-  _Cat('🥤', 'Boissons'),
-  _Cat('🍰', 'Desserts'),
+  _Cat('1513104890138-7c749659a591', 'Pizza'),
+  _Cat('1599974579688-8dbdd335c77f', 'Tacos'),
+  _Cat('1568901346375-23c9450c58cd', 'Burgers'),
+  _Cat('1630877265928-abc0c39186aa', 'Healthy'),
+  _Cat('1626700051175-6818013e1d4f', 'Grillades'),
+  _Cat('1716956755600-4d32af2b8f87', 'Boissons'),
 ];
 
 class _UDish {
@@ -560,26 +537,26 @@ class _UDish {
   final String resto;
   final int price;
   final double rating;
-  final String query;
+  final String imageId;
   final String restaurantId;
   final String desc;
   final int minutes;
   final int fee;
-  const _UDish(this.name, this.resto, this.price, this.rating, this.query,
+  const _UDish(this.name, this.resto, this.price, this.rating, this.imageId,
       this.restaurantId, this.desc, this.minutes, this.fee);
 }
 
 const _dishes = [
-  _UDish('Pizza Margherita', 'Pizza Palace', 1800, 4.7, 'pizza',
+  _UDish('Pizza Margherita', 'Pizza Palace', 1800, 4.7, '1513104890138-7c749659a591',
       'seed-pizzapalace', 'Tomate, mozzarella et basilic frais', 25, 0),
-  _UDish('Tacos Poulet', 'Tacos City', 1200, 4.6, 'tacos,food',
+  _UDish('Tacos Poulet', 'Tacos City', 1200, 4.6, '1599974579688-8dbdd335c77f',
       'seed-chezayan', 'Poulet grillé, légumes et sauce maison', 20, 300),
-  _UDish('Wrap Falafel', 'Healthy Corner', 1000, 4.8, 'wrap,sandwich',
+  _UDish('Wrap Falafel', 'Healthy Corner', 1000, 4.8, '1562059390-a761a084768e',
       'seed-bunnacorner', 'Falafel, crudités et sauce tahini', 30, 0),
-  _UDish('Burrito Bœuf', 'Mexico Djib', 1500, 4.5, 'burrito', 'seed-tadjoura',
+  _UDish('Burrito Bœuf', 'Mexico Djib', 1500, 4.5, '1731090389603-d63060ee08a6', 'seed-tadjoura',
       'Bœuf épicé, riz, haricots et fromage', 35, 400),
-  _UDish('Skoudehkaris', 'Saveurs d\'Afar', 1600, 4.9, 'rice,meat', 'seed-afar',
+  _UDish('Skoudehkaris', 'Saveurs d\'Afar', 1600, 4.9, '1626700051175-6818013e1d4f', 'seed-afar',
       'Riz épicé traditionnel mijoté au bœuf', 30, 200),
-  _UDish('Jus de mangue', 'Fruity', 400, 4.6, 'mango,juice', 'seed-mandeb',
+  _UDish('Jus de mangue', 'Fruity', 400, 4.6, '1716956755600-4d32af2b8f87', 'seed-mandeb',
       'Jus de mangue fraîchement pressé', 15, 0),
 ];

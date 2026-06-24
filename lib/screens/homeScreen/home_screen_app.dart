@@ -4,7 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:nomade_client/providers/all_providers.dart';
 import 'package:nomade_client/screens/auth-firebase/auth/sign_in_screen.dart';
 import 'package:nomade_client/screens/taxi/taxi_home_screen.dart';
-import 'package:nomade_client/screens/food/home_food/home_screen_food.dart';
+import 'package:nomade_client/screens/food/restaurants_browse_screen.dart';
 import 'package:nomade_client/screens/profile/profile_screen.dart';
 import 'package:nomade_client/screens/history/order_history_screen.dart';
 import 'package:nomade_client/widgets/velox_stats_chart.dart';
@@ -14,7 +14,6 @@ import 'package:nomade_client/screens/homeScreen/uber_eats_home.dart';
 import 'package:nomade_client/models/menu_item.dart';
 import 'package:nomade_client/screens/food/addToOrder/add_to_order_screen.dart';
 import 'package:nomade_client/models/restaurant.dart';
-import 'package:nomade_client/dev/dev_seed.dart'; // TEMP seed
 import 'package:nomade_client/theme/app_colors.dart';
 import 'package:nomade_client/translations/app_translations.dart';
 import 'components/djibouti_dishes.dart';
@@ -96,11 +95,16 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
     if (!mounted) return;
     Navigator.push(
       context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
-            FadeTransition(opacity: animation, child: child),
-      ),
+      MaterialPageRoute(builder: (_) => const RestaurantsBrowseScreen()),
+    );
+  }
+
+  void _goToCategory(String category) {
+    if (!mounted) return;
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (_) => RestaurantsBrowseScreen(category: category)),
     );
   }
 
@@ -825,22 +829,26 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
       margin: const EdgeInsets.fromLTRB(24, 0, 24, 8),
       height: 52,
       decoration: BoxDecoration(
-        color: c.surface,
+        color: c.bg.withValues(alpha: 0.0),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: c.outlineVariant.withValues(alpha: 0.18)),
+        border: Border.all(color: c.outlineVariant.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
-          _buildNavItem(0, Icons.home_rounded, 'Accueil', c),
-          _buildNavItem(1, Icons.receipt_long_rounded, 'Commandes', c),
-          _buildNavItem(2, Icons.local_taxi_rounded, 'Taxi', c),
-          _buildNavItem(3, Icons.person_rounded, 'Profil', c),
+          _buildNavItem(0, Icons.home_outlined, Icons.home_rounded, 'Accueil', c),
+          _buildNavItem(1, Icons.receipt_long_outlined,
+              Icons.receipt_long_rounded, 'Commandes', c),
+          _buildNavItem(2, Icons.local_taxi_outlined, Icons.local_taxi_rounded,
+              'Taxi', c),
+          _buildNavItem(3, Icons.person_outline_rounded, Icons.person_rounded,
+              'Profil', c),
         ],
       ),
     );
   }
 
-  Widget _buildNavItem(int index, IconData icon, String label, AppColors c) {
+  Widget _buildNavItem(int index, IconData icon, IconData activeIcon,
+      String label, AppColors c) {
     final isActive = _selectedIndex == index;
     return Expanded(
       child: GestureDetector(
@@ -859,7 +867,7 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
                     )
                   : null,
               child: Icon(
-                icon,
+                isActive ? activeIcon : icon,
                 color: isActive ? c.primary : c.onSurfaceVariant,
                 size: 18,
               ),
@@ -953,7 +961,9 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
               locationOff: _locationOff,
               onRequestLocation: _requestLocation,
               onOpenRestaurants: _goToRestaurants,
+              onOpenCategory: _goToCategory,
               onGoTaxi: _goToTaxi,
+              onOpenProfile: () => _onItemTapped(3),
               servicesSection: _buildServicesBlock(c),
               statsSection: _buildStats(c),
               onAddDish:
@@ -995,16 +1005,6 @@ class _HomeScreenAppState extends ConsumerState<HomeScreenApp> {
             const ProfileScreen(),
           ],
         ),
-      ),
-      // ⚠️ TEMP — bouton de seed (à retirer après avoir rempli Firestore)
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final msg = await runVeloxSeed();
-          if (!context.mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
-        },
-        icon: const Icon(Icons.cloud_upload),
-        label: const Text('Seed'),
       ),
       bottomNavigationBar: SafeArea(
         child: _buildBottomNav(c),
